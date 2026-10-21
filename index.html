@@ -80,7 +80,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 <div id="side">
 <div class="box"><h2 data-t="menu"></h2><div class="in"><ul><li><a href="#news" data-t="n1"></a></li><li><a href="#mod" data-t="n2"></a></li><li><a href="#shots" data-t="n3"></a></li><li><a href="#credits" data-t="n4"></a></li><li><a href="#download" data-t="n5"></a></li></ul></div></div>
 <div class="box"><h2 data-t="team"></h2><div class="in" data-t="teamtxt"></div></div>
-<div class="box"><h2 data-t="vis"></h2><div class="in"><div class="hit">000067</div></div></div>
+<div class="box"><h2 data-t="vis"></h2><div class="in"><div class="hit" id="hit">000067</div></div></div>
 <div class="box"><h2 data-t="st"></h2><div class="in"><div data-t="sttxt"></div><div class="bar" style="margin-top:6px"></div></div></div>
 </div>
 <div id="main">
@@ -140,5 +140,7 @@ document.getElementById('lang').onclick=function(e){if(e.target.dataset.l)setL(e
 var st=null;try{st=localStorage.getItem('lang')}catch(x){}
 setL(st||((navigator.language||'').slice(0,2)=='ru'?'ru':'en'));
 </script>
+<script>try{fetch('https://texrat.goatcounter.com/counter/TOTAL.json').then(function(r){return r.json()}).then(function(d){var n=String(d.count).replace(/\D/g,'');if(n)document.getElementById('hit').textContent=('000000'+n).slice(-Math.max(6,n.length))}).catch(function(){})}catch(e){}</script>
+<script data-goatcounter="https://texrat.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
