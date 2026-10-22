@@ -86,7 +86,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 @media(max-width:640px){#head{flex-wrap:wrap}}
 #vgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:10px}
 .vid-item{background:#000;border:2px solid var(--line);padding:3px;border-radius:4px;min-width:0}.vid-item video{background:#000}.vid-item{margin:0}#vgal{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;align-items:start}#vgal .mat-more{grid-column:1/-1}
-.vid-item video, .vid-item iframe{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border:0}
+.vid-item iframe{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border:0}.vid-open{width:100%;min-height:135px;aspect-ratio:16/9;background:linear-gradient(135deg,#160914,#46202d);border:0;color:var(--yel);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;font-weight:bold}.vid-play{font-size:30px;border:2px solid var(--yel);border-radius:50%;width:54px;height:54px;display:flex;align-items:center;justify-content:center;padding-left:4px}.vid-file{font-size:12px}
 .vid-item figcaption{font-size:12px;color:var(--yel);padding:5px 2px;text-align:center}
 .vid-item img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;cursor:pointer}
 .mat-desc{padding:4px 6px;color:var(--text);font-size:12px}
@@ -167,27 +167,27 @@ function showVid(id) {
   var p = lb.querySelector('p');
   
   img.style.display = 'none';
-  p.innerHTML = '<video src="' + url + '" controls autoplay style="width:100%; max-width:800px; max-height:80vh; border:3px solid var(--org); border-radius:4px; background:#000;"></video>';
+  p.innerHTML = '<video src="' + url + '" controls autoplay style="width:auto; height:auto; max-width:90vw; max-height:80vh; object-fit:contain; border:3px solid var(--org); border-radius:4px; background:#000;"></video>';
   
   lb.style.display = 'flex';
 }
 function gal(){var g=document.getElementById('gal'),h='',n=Math.max(6,SHOTS.length);for(var i=0;i<n;i++){var sh=SHOTS[i];h+=sh?'<figure class="sh" data-i="'+i+'"><img src="'+sh.src+'" alt=""><figcaption>'+(sh[L]||'')+'</figcaption></figure>':'<figure class="sh empty"><div>NO SIGNAL</div><figcaption>'+T.slot[L]+'</figcaption></figure>'}g.innerHTML=h}
-var VIDS = [
-  {"src":"videos/home_run_teaser.mp4","ru":"Тизер Home Run из Weekend 2","en":"Home Run teaser (Weekend 2)","descRu":"Короткий тизер песни Home Run для Weekend 2.","descEn":"A short teaser for the Home Run song from Weekend 2."},
-  {"src":"videos/ugh_teaser.mp4","ru":"Тизер Ugh (Tankman Mix)","en":"Ugh (Tankman Mix) teaser","descRu":"Тизер Ugh с Танкменом.","descEn":"A teaser for Ugh featuring Tankman."}
+var VIDEO_ITEMS = [
+  {"id":"homerun","src":"videos/home_run_teaser.mp4","ru":"Тизер Home Run из Weekend 2","en":"Home Run teaser (Weekend 2)","descRu":"Короткий тизер песни Home Run для Weekend 2.","descEn":"A short teaser for the Home Run song from Weekend 2."},
+  {"id":"ugh","src":"videos/ugh_teaser.mp4","ru":"Тизер Ugh (Tankman Mix)","en":"Ugh (Tankman Mix) teaser","descRu":"Тизер Ugh с Танкменом.","descEn":"A teaser for Ugh featuring Tankman."}
 ];
 var materialsExpanded = false;
 function openMaterialShot(i){var sh=SHOTS[i];if(!sh)return;var lb=document.getElementById('lb');lb.querySelector('img').src=sh.src;lb.querySelector('p').textContent=sh[L]||'';lb.style.display='flex';}
 function vgal(){
   var g=document.getElementById('vgal');if(!g)return;
   var items=[];
-  VIDS.forEach(function(v){items.push({kind:'video',item:v});});
+  VIDEO_ITEMS.forEach(function(v){items.push({kind:'video',item:v});});
 
   var visible=materialsExpanded?items:items.slice(0,3),h='';
   visible.forEach(function(entry){
     var v=entry.item,media,caption=v[L]||'',desc='';
     if(entry.kind==='video'){
-      media='<video src="'+v.src+'" controls preload="metadata" playsinline></video>';
+      media='<button type="button" class="vid-open" onclick="showVid(\''+v.id+'\')" aria-label="'+caption+'"><span class="vid-play">▶</span><span class="vid-file">'+(L==='ru'?'Открыть видео':'Play video')+'</span></button>';
       desc=v[L==='ru'?'descRu':'descEn']||'';
     }else{
       media='<img src="'+v.src+'" alt="" onclick="openMaterialShot('+entry.index+')">';
