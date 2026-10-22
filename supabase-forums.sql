@@ -25,6 +25,10 @@ create table if not exists public.forum_posts (
 );
 
 -- Upgrade existing forum tables safely.
+alter table public.forum_topics add column if not exists user_id uuid references auth.users(id) on delete cascade default auth.uid();
+alter table public.forum_topics alter column user_id set default auth.uid();
+alter table public.forum_posts add column if not exists user_id uuid references auth.users(id) on delete cascade default auth.uid();
+alter table public.forum_posts alter column user_id set default auth.uid();
 alter table public.forum_topics add column if not exists name text;
 alter table public.forum_topics add column if not exists avatar_url text;
 alter table public.forum_topics add column if not exists files jsonb not null default '[]'::jsonb;
