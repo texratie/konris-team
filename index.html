@@ -85,7 +85,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .cmad{border:1px dashed var(--org);padding:6px;margin:8px 0}.cmsg{color:var(--org);margin:4px 0}.cmh{font-size:11px;color:#c98aa8}
 @media(max-width:640px){#head{flex-wrap:wrap}}
 #vgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:10px}
-.vid-item{background:#000;border:2px solid var(--line);padding:3px;border-radius:4px}
+.vid-item{background:#000;border:2px solid var(--line);padding:3px;border-radius:4px;min-width:0}.vid-item video{background:#000}.vid-item{margin:0}#vgal{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;align-items:start}#vgal .mat-more{grid-column:1/-1}
 .vid-item video, .vid-item iframe{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border:0}
 .vid-item figcaption{font-size:12px;color:var(--yel);padding:5px 2px;text-align:center}
 .vid-item img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;cursor:pointer}
@@ -171,11 +171,10 @@ function showVid(id) {
   
   lb.style.display = 'flex';
 }
-function gal(){var g=document.getElementById('gal'),h='',n=Math.max(6,SHOTS.length);
-
+function gal(){var g=document.getElementById('gal'),h='',n=Math.max(6,SHOTS.length);for(var i=0;i<n;i++){var sh=SHOTS[i];h+=sh?'<figure class="sh" data-i="'+i+'"><img src="'+sh.src+'" alt=""><figcaption>'+(sh[L]||'')+'</figcaption></figure>':'<figure class="sh empty"><div>NO SIGNAL</div><figcaption>'+T.slot[L]+'</figcaption></figure>'}g.innerHTML=h}
 var VIDS = [
-  {"src":"videos/home_run_teaser.mp4","ru":"Тизер Home Run из Weekend 2","en":"Home Run teaser (Weekend 2)","descRu":"Короткий тизер микса Home Run для Weekend 2.","descEn":"A short teaser for the Home Run mix from Weekend 2."},
-  {"src":"videos/ugh_teaser.mp4","ru":"Тизер Ugh (Tankman Mix)","en":"Ugh (Tankman Mix) teaser","descRu":"Тизер микса Ugh с Танкменом.","descEn":"A teaser for the Tankman Mix of Ugh."}
+  {"src":"videos/home_run_teaser.mp4","ru":"Тизер Home Run из Weekend 2","en":"Home Run teaser (Weekend 2)","descRu":"Короткий тизер песни Home Run для Weekend 2.","descEn":"A short teaser for the Home Run song from Weekend 2."},
+  {"src":"videos/ugh_teaser.mp4","ru":"Тизер Ugh (Tankman Mix)","en":"Ugh (Tankman Mix) teaser","descRu":"Тизер Ugh с Танкменом.","descEn":"A teaser for Ugh featuring Tankman."}
 ];
 var materialsExpanded = false;
 function openMaterialShot(i){var sh=SHOTS[i];if(!sh)return;var lb=document.getElementById('lb');lb.querySelector('img').src=sh.src;lb.querySelector('p').textContent=sh[L]||'';lb.style.display='flex';}
@@ -188,7 +187,7 @@ function vgal(){
   visible.forEach(function(entry){
     var v=entry.item,media,caption=v[L]||'',desc='';
     if(entry.kind==='video'){
-      media=v.src.indexOf('youtube')>-1||v.src.indexOf('vimeo')>-1?'<iframe src="'+v.src+'" allowfullscreen loading="lazy"></iframe>':'<video src="'+v.src+'" controls preload="metadata"></video>';
+      media='<video src="'+v.src+'" controls preload="metadata" playsinline></video>';
       desc=v[L==='ru'?'descRu':'descEn']||'';
     }else{
       media='<img src="'+v.src+'" alt="" onclick="openMaterialShot('+entry.index+')">';
@@ -199,8 +198,6 @@ function vgal(){
   if(items.length>3)h+='<button type="button" class="mat-more" onclick="materialsExpanded=!materialsExpanded;vgal()">'+(materialsExpanded?(L==='ru'?'Свернуть':'Show less'):(L==='ru'?'Раскрыть материалы ('+items.length+')':'Show all media ('+items.length+')'))+'</button>';
   g.innerHTML=h;
 }
-for(var i=0;i<n;i++){var s=SHOTS[i];h+=s?'<figure class="sh" data-i="'+i+'"><img src="'+s.src+'" alt=""><figcaption>'+(s[L]||'')+'</figcaption></figure>':'<figure class="sh empty"><div>NO SIGNAL</div><figcaption>'+T.slot[L]+'</figcaption></figure>'}
-g.innerHTML=h}
 document.getElementById('gal').onclick=function(e){var f=e.target.closest('.sh:not(.empty)');if(!f)return;var s=SHOTS[f.dataset.i],lb=document.getElementById('lb');lb.querySelector('img').src=s.src;lb.querySelector('p').textContent=s[L]||'';lb.style.display='flex'};
 function setL(l){L=l;document.documentElement.lang=l;
 document.querySelectorAll('[data-t]').forEach(function(e){e.innerHTML=T[e.dataset.t][l]});
