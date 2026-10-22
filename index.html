@@ -80,6 +80,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 #forumApp .forum-action:disabled{opacity:.5;cursor:wait}
 #forumApp .forum-error{color:#ff9b9b;font-size:12px}
 #forumApp .forum-content{border-left:2px solid var(--line);padding-left:10px;margin-top:8px}
+#forumApp .forum-author{display:flex;align-items:center;gap:8px;margin:5px 0;color:var(--yel);font-weight:bold}.forum-avatar{width:34px;height:34px;flex:none;object-fit:cover;border:2px solid var(--line);background:#000;border-radius:50%}.forum-avatar.q{display:flex;align-items:center;justify-content:center;color:#888;font-size:17px}.forum-files{font-size:11px;color:#c98aa8;margin:4px 0}.forum-form .forum-file-list{margin:4px 0}.forum-form .forum-file-list span{display:inline-block;border:1px dashed var(--line);padding:2px 5px;margin:2px}
 .cmf textarea,.cmf input{width:100%;background:#1a0710;color:var(--text);border:2px inset #555;font:13px Verdana,Tahoma,Arial,sans-serif;padding:4px;margin:3px 0}
 .cmf textarea{height:70px;resize:vertical}
 .cmb{background:linear-gradient(#ffb43a,#e07800);color:#000;border:2px outset #ffd27a;font:bold 12px Verdana;padding:4px 12px;cursor:pointer}
@@ -528,11 +529,18 @@ sb.auth.onAuthStateChange(function(e,s){SES=s;cmL();setTimeout(function(){chkAdm
 } else cmL();
 
 /* Per-mod forum: public reading, GitHub-authenticated posting. */
-var forumTopics=[],forumCurrent=null,forumBusy=false,forumReady=false;
+var forumTopics=[],forumCurrent=null,forumBusy=false,forumReady=false,forumFiles=[],forumGif='';
 function forumT(k){return (T[k]&&T[k][L])||k}
 function forumMsg(txt){var e=document.getElementById('forumError');if(e)e.textContent=txt||''}
 function forumWhen(v){try{return new Date(v).toLocaleString(L==='ru'?'ru-RU':'en-GB',{dateStyle:'medium',timeStyle:'short'})}catch(e){return ''}}
-function forumWho(uid){if(SES&&SES.user&&SES.user.id===uid){var md=SES.user.user_metadata||{};return (md.user_name||md.full_name||'GitHub')}return 'User '+String(uid||'').slice(0,8)}
+function forumAuthorName(row){var uid=row&&row.user_id,p=uid&&PF[uid],md=(SES&&SES.user&&SES.user.id===uid&&SES.user.user_metadata)||{},n=(p&&p.display_name)||row.name||md.user_name||md.user_name||md.full_name||md.preferred_username;return n||('User '+String(uid||'').slice(0,8))}
+function forumAuthor(row){var uid=row&&row.user_id,p=uid&&PF[uid],fb=row&&row.avatar_url,click=p?` data-u='${esc(uid)}'`:'';return `<div class='forum-author'>${avh(p,fb,'forum-avatar'+(p?' cpu':''),click)}<span>${p?`<b class='cpu' data-u='${esc(uid)}'${okC(p.name_color)?` style='color:${p.name_color}'`:''}>${esc(p.display_name||row.name||forumAuthorName(row))}</b>`:`<b>${esc(forumAuthorName(row))}</b>`}</span>${row&&row.is_github?"<span class='gh'>GitHub</span>":''}</div>`}
+function forumCurrentAuthor(){var u=SES&&SES.user||{},md=u.user_metadata||{},idn=(u.identities||[]).filter(function(x){return x.provider==='github'})[0],idmd=idn&&idn.identity_data||{};return {name:(PF[u.id]&&PF[u.id].display_name)||idmd.user_name||md.user_name||md.full_name||md.preferred_username||'GitHub',avatar_url:md.avatar_url||idmd.avatar_url||null}}
+function forumAttachmentMarkup(){return forumFiles.map(function(f,i){return `<span>${esc(f.name)} (${fsz(f.size)}) <a href='#' data-forum-remove='${i}'>✕</a></span>`}).join('')+(forumGif?`<span>GIF <a href='#' data-forum-gif-remove>✕</a></span>`:'')}
+function forumRefreshFiles(){var e=document.getElementById('forumFileList');if(e)e.innerHTML=forumAttachmentMarkup()}
+function forumWireComposer(){var fi=document.getElementById('forumFileInput'),ab=document.getElementById('forumAttach'),gb=document.getElementById('forumGifButton');if(ab&&fi)ab.onclick=function(){fi.click()};if(fi)fi.onchange=function(){Array.prototype.forEach.call(fi.files||[],function(f){if(f.size>20971520){forumMsg(L==='ru'?'Файл больше 20 МБ — не добавлен.':'File is over 20 MB — not added.')}else if(forumFiles.length>=4){forumMsg(L==='ru'?'Максимум 4 файла.':'Maximum 4 files.')}else forumFiles.push(f)});fi.value='';forumRefreshFiles()};if(gb)gb.onclick=function(){gifOpen(function(id){forumGif=id;forumRefreshFiles()})};Array.prototype.forEach.call(document.querySelectorAll('[data-forum-remove]'),function(a){a.onclick=function(e){e.preventDefault();forumFiles.splice(+a.getAttribute('data-forum-remove'),1);forumRefreshFiles()}});var gr=document.querySelector('[data-forum-gif-remove]');if(gr)gr.onclick=function(e){e.preventDefault();forumGif='';forumRefreshFiles()}}
+function forumUploadFiles(){if(!forumFiles.length)return Promise.resolve([]);var uid=SES.user.id;return Promise.all(forumFiles.map(function(f,i){var ext=(f.name.split('.').pop()||'bin').replace(/[^a-z0-9]/gi,'').slice(0,8)||'bin',path=uid+'/forum-'+Date.now()+'-'+i+'.'+ext;return sb.storage.from(BK).upload(path,f,{contentType:f.type||'application/octet-stream'}).then(function(r){if(r.error)throw r.error;return {u:sb.storage.from(BK).getPublicUrl(path).data.publicUrl,n:f.name.slice(0,80),t:f.type||'',s:f.size}})}))}
+function forumBodyWithGif(body){return forumGif?((body?body+'\\n':'')+'[gif:'+forumGif+']'):body}
 function forumButton(txt,action,attrs){return "<button class='forum-action' type='button' data-faction='"+action+"' "+(attrs||'')+">"+txt+"</button>"}
 function forumRender(){
  var el=document.getElementById('forumApp');if(!el)return;
@@ -541,75 +549,74 @@ function forumRender(){
   var t=forumTopics.filter(function(x){return String(x.id)===String(forumCurrent)})[0];
   if(!t){forumCurrent=null;return forumRender()}
   h+=forumButton(forumT('forumBack'),'back');
-  h+="<article class='forum-card'><div class='forum-title'>"+esc(t.title)+"</div><div class='forum-meta'>"+esc(forumWho(t.user_id))+" · "+esc(forumWhen(t.created_at))+"</div><div class='forum-body'>"+esc(t.body)+"</div></article>";
+  h+="<article class='forum-card'><div class='forum-title'>"+esc(t.title)+"</div>"+forumAuthor(t)+"<div class='forum-meta'>"+esc(forumWhen(t.created_at))+"</div><div class='forum-body'>"+gbody(t.body)+"</div><div class='cat'>"+fl(t.files)+"</div></article>";
   var posts=Array.isArray(t.posts)?t.posts:[];
   h+="<h3>"+esc(forumT('forumReplies'))+" ("+posts.length+")</h3>";
-  h+=posts.length?posts.map(function(p){return "<article class='forum-card'><div class='forum-meta'>"+esc(forumWho(p.user_id))+" · "+esc(forumWhen(p.created_at))+"</div><div class='forum-body'>"+esc(p.body)+"</div></article>"}).join():"<p>"+esc(forumT('forumNoReplies'))+"</p>";
-  if(isGh())h+="<div class='forum-form'><textarea id='forumReplyText' maxlength='3000' placeholder='"+esc(forumT('forumReplyPlaceholder'))+"'></textarea>"+forumButton(forumT('forumReply'),'reply')+"<span id='forumError' class='forum-error'></span></div>";
+  h+=posts.length?posts.map(function(p){return "<article class='forum-card'>"+forumAuthor(p)+"<div class='forum-meta'>"+esc(forumWhen(p.created_at))+"</div><div class='forum-body'>"+gbody(p.body)+"</div><div class='cat'>"+fl(p.files)+"</div></article>"}).join():"<p>"+esc(forumT('forumNoReplies'))+"</p>";
+  if(isGh())h+="<div class='forum-form'><textarea id='forumReplyText' maxlength='3000' placeholder='"+esc(forumT('forumReplyPlaceholder'))+"'></textarea><input type='file' id='forumFileInput' multiple hidden><div class='forum-file-list' id='forumFileList'>"+forumAttachmentMarkup()+"</div>"+forumButton(L==='ru'?'📎 Прикрепить':'📎 Attach','attach',"id='forumAttach'")+" "+(KLIPY_KEY?forumButton('GIF','gif',"id='forumGifButton'"):'')+" "+forumButton(forumT('forumReply'),'reply')+"<span id='forumError' class='forum-error'></span></div>";
   else h+="<p>"+esc(forumT('forumLoginHint'))+"</p>"+forumButton(forumT('forumSignIn'),'login');
  }else{
   if(isGh())h+=forumButton(forumT('forumCreate'),'new');
   else h+=forumButton(forumT('forumSignIn'),'login');
-  if(forumTopics.length)h+=forumTopics.map(function(t){return "<article class='forum-card'><div class='forum-title' data-topic='"+esc(t.id)+"'>"+esc(t.title)+"</div><div class='forum-meta'>"+esc(forumWho(t.user_id))+" · "+esc(forumWhen(t.created_at))+" · "+(t.post_count||0)+" "+esc(forumT('forumReplies').toLowerCase())+"</div><div class='forum-body'>"+esc(String(t.body||'').slice(0,220))+(String(t.body||'').length>220?'…':'')+"</div></article>"}).join('');
+  if(forumTopics.length)h+=forumTopics.map(function(t){return "<article class='forum-card'>"+forumAuthor(t)+"<div class='forum-title' data-topic='"+esc(t.id)+"'>"+esc(t.title)+"</div><div class='forum-meta'>"+esc(forumWhen(t.created_at))+" · "+(t.post_count||0)+" "+esc(forumT('forumReplies').toLowerCase())+"</div><div class='forum-body'>"+gbody((String(t.body||'').slice(0,220))+(String(t.body||'').length>220?'…':''))+"</div><div class='cat'>"+fl(t.files)+"</div></article>"}).join('');
   else h+="<p>"+esc(forumT('forumEmpty'))+"</p>";
  }
  h+="<div id='forumError' class='forum-error' role='status'></div>";
  el.innerHTML=h;
  var err=document.getElementById('forumError');
  var b=el.querySelector('[data-faction=new]');
- if(b)b.onclick=function(){if(!isGh())return forumRender();el.insertAdjacentHTML('afterbegin',"<div class='forum-form' id='forumNew'><label for='forumNewTitle'>"+esc(forumT('forumTopicTitle'))+"</label><input id='forumNewTitle' maxlength='100' required><label for='forumNewBody'>"+esc(forumT('forumTopicBody'))+"</label><textarea id='forumNewBody' maxlength='5000' required></textarea>"+forumButton(forumT('forumSend'),'create')+" "+forumButton(L==='ru'?'Отмена':'Cancel','cancel')+"<div id='forumNewError' class='forum-error'></div></div>");var title=document.getElementById('forumNewTitle');if(title)title.focus();};
+ if(b)b.onclick=function(){if(!isGh())return forumRender();forumFiles=[];forumGif='';el.insertAdjacentHTML('afterbegin',"<div class='forum-form' id='forumNew'><label for='forumNewTitle'>"+esc(forumT('forumTopicTitle'))+"</label><input id='forumNewTitle' maxlength='100' required><label for='forumNewBody'>"+esc(forumT('forumTopicBody'))+"</label><textarea id='forumNewBody' maxlength='5000' required></textarea><input type='file' id='forumFileInput' multiple hidden><div class='forum-file-list' id='forumFileList'></div>"+forumButton(L==='ru'?'📎 Прикрепить':'📎 Attach','attach',"id='forumAttach'")+" "+(KLIPY_KEY?forumButton('GIF','gif',"id='forumGifButton'"):'')+"<br>"+forumButton(forumT('forumSend'),'create')+" "+forumButton(L==='ru'?'Отмена':'Cancel','cancel')+"<div id='forumNewError' class='forum-error'></div></div>");forumWireComposer();var title=document.getElementById('forumNewTitle');if(title)title.focus();};
  b=el.querySelector('[data-faction=login]');if(b)b.onclick=function(){sb.auth.signInWithOAuth({provider:'github',options:{redirectTo:location.href.split('#')[0]+'#forum'}})};
  b=el.querySelector('[data-faction=back]');if(b)b.onclick=function(){forumCurrent=null;forumRender()};
  Array.prototype.forEach.call(el.querySelectorAll('[data-topic]'),function(x){x.onclick=function(){forumOpenTopic(x.getAttribute('data-topic'))}});
  Array.prototype.forEach.call(el.querySelectorAll('[data-faction=create]'),function(x){x.onclick=forumCreateTopic});
  Array.prototype.forEach.call(el.querySelectorAll('[data-faction=cancel]'),function(x){x.onclick=forumRender});
  Array.prototype.forEach.call(el.querySelectorAll('[data-faction=reply]'),function(x){x.onclick=forumReply});
+ forumWireComposer();
 }
 function forumLoad(){
  var el=document.getElementById('forumApp');if(!el)return;
  if(!sb){el.innerHTML="<p class='forum-error'>"+esc(forumT('forumError'))+"</p>";return}
  el.innerHTML="<p class='forum-meta'>"+(L==='ru'?'Загружаем темы…':'Loading topics…')+"</p>";
- sb.from('forum_topics').select('id,mod_slug,title,body,user_id,created_at').eq('mod_slug','tankmans-night-missions').order('created_at',{ascending:false}).limit(100).then(function(r){
+ sb.from('forum_topics').select('id,mod_slug,title,body,user_id,created_at,name,avatar_url,files').eq('mod_slug','tankmans-night-missions').order('created_at',{ascending:false}).limit(100).then(function(r){
   if(r.error){console.warn('forum topics:',r.error.message);el.innerHTML="<p class='forum-error'>"+esc(forumT('forumError'))+"</p>";return}
   forumTopics=(r.data||[]).map(function(t){t.posts=[];t.post_count=0;return t});
   if(!forumTopics.length){forumCurrent=null;forumRender();return}
-  return sb.from('forum_posts').select('id,topic_id,body,user_id,created_at').in('topic_id',forumTopics.map(function(t){return t.id})).order('created_at',{ascending:true}).then(function(p){
+  return sb.from('forum_posts').select('id,topic_id,body,user_id,created_at,name,avatar_url,files').in('topic_id',forumTopics.map(function(t){return t.id})).order('created_at',{ascending:true}).then(function(p){
    if(p.error){console.warn('forum posts:',p.error.message);forumRender();return}
    (p.data||[]).forEach(function(x){var t=forumTopics.filter(function(y){return String(y.id)===String(x.topic_id)})[0];if(t)t.posts.push(x)});
    forumTopics.forEach(function(t){t.post_count=t.posts.length});
-   forumRender();
+   forumLoadProfiles();forumRender();
   });
  }).catch(function(e){console.warn('forum load:',e);el.innerHTML="<p class='forum-error'>"+esc(forumT('forumError'))+"</p>"});
 }
+function forumLoadProfiles(){var ids={};forumTopics.forEach(function(t){if(t.user_id)ids[t.user_id]=1;(t.posts||[]).forEach(function(p){if(p.user_id)ids[p.user_id]=1})});var a=Object.keys(ids);if(!a.length||!sb)return;sb.from('profiles').select('*').in('user_id',a).then(function(r){if(r.error){console.warn('forum profiles:',r.error.message);return}(r.data||[]).forEach(function(p){PF[p.user_id]=p});forumRender()})}
 function forumOpenTopic(id){forumCurrent=String(id);forumRender()}
 function forumCreateTopic(){
  if(forumBusy||!isGh())return;
  var title=document.getElementById('forumNewTitle'),body=document.getElementById('forumNewBody'),err=document.getElementById('forumNewError');
  var a=(title&&title.value||'').trim(),b=(body&&body.value||'').trim();
  if(!a||!b){if(err)err.textContent=L==='ru'?'Заполни название и текст темы.':'Enter a title and post.';return}
- forumBusy=true;
- sb.from('forum_topics').insert({mod_slug:'tankmans-night-missions',title:a,body:b}).select('id,mod_slug,title,body,user_id,created_at').single().then(function(r){
+ forumBusy=true;var author=forumCurrentAuthor(),content=forumBodyWithGif(b);
+ forumUploadFiles().then(function(files){return sb.from('forum_topics').insert({mod_slug:'tankmans-night-missions',title:a,body:content,name:author.name,avatar_url:author.avatar_url,files:files}).select('id,mod_slug,title,body,user_id,created_at,name,avatar_url,files').single()}).then(function(r){
   if(r.error)throw r.error;
-  forumTopics.unshift(Object.assign(r.data,{posts:[],post_count:0}));forumCurrent=String(r.data.id);forumBusy=false;forumRender();
+  forumFiles=[];forumGif='';forumTopics.unshift(Object.assign(r.data,{posts:[],post_count:0}));forumCurrent=String(r.data.id);forumBusy=false;forumRender();
  }).catch(function(e){console.warn('forum create:',e);forumBusy=false;if(err)err.textContent=forumT('forumError')});
 }
 function forumReply(){
  if(forumBusy||!isGh()||!forumCurrent)return;
  var input=document.getElementById('forumReplyText'),body=(input&&input.value||'').trim(),err=document.getElementById('forumError');
- if(!body){if(err)err.textContent=L==='ru'?'Напиши текст ответа.':'Enter a reply.';return}
- forumBusy=true;
- sb.from('forum_posts').insert({topic_id:forumCurrent,body:body}).select('id,topic_id,body,user_id,created_at').single().then(function(r){
+ if(!body&&!forumFiles.length&&!forumGif){if(err)err.textContent=L==='ru'?'Напиши текст ответа или прикрепи файл/GIF.':'Write a reply or attach a file/GIF.';return}
+ forumBusy=true;var author=forumCurrentAuthor(),content=forumBodyWithGif(body);
+ forumUploadFiles().then(function(files){return sb.from('forum_posts').insert({topic_id:forumCurrent,body:content||'📎',name:author.name,avatar_url:author.avatar_url,files:files}).select('id,topic_id,body,user_id,created_at,name,avatar_url,files').single()}).then(function(r){
   if(r.error)throw r.error;
   var t=forumTopics.filter(function(x){return String(x.id)===String(forumCurrent)})[0];if(t){t.posts.push(r.data);t.post_count=t.posts.length}
-  forumBusy=false;forumRender();
+  forumFiles=[];forumGif='';forumBusy=false;forumRender();
  }).catch(function(e){console.warn('forum reply:',e);forumBusy=false;if(err)err.textContent=forumT('forumError')});
 }
 (function(){
  forumLoad();
  if(sb&&sb.auth)sb.auth.onAuthStateChange(function(){setTimeout(function(){forumLoad()},0)});
- var app=document.getElementById('forumApp');if(app)app.addEventListener('click',function(e){
-  var x=e.target.closest('[data-faction=create]');if(x){forumCreateTopic();return}
- });
 })();
 </script>
 <script data-goatcounter="https://texrat.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
