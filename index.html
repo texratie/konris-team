@@ -310,7 +310,7 @@ document.getElementById('gal').onclick=function(e){var f=e.target.closest('.sh:n
 function setL(l){L=l;document.documentElement.lang=l;
 document.querySelectorAll('[data-t]').forEach(function(e){e.innerHTML=T[e.dataset.t][l]});
 document.querySelectorAll('#lang button').forEach(function(b){b.className=b.dataset.l==l?'on':''});
-gal();cr();vgal();news();if(window.cmL)cmL();if(window.dmBadge)dmBadge();try{localStorage.setItem('lang',l)}catch(x){}}
+gal();cr();vgal();news();if(window.cmL)cmL();if(window.dmBadge)dmBadge();if(window.forumRender)forumRender();try{localStorage.setItem('lang',l)}catch(x){}}
 document.getElementById('lang').onclick=function(e){if(e.target.dataset.l)setL(e.target.dataset.l)};
 var st=null;try{st=localStorage.getItem('lang')}catch(x){}
 setL(st||((navigator.language||'').slice(0,2)=='ru'?'ru':'en'));
