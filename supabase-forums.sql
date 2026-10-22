@@ -45,7 +45,7 @@ alter table public.forum_topics enable row level security;
 alter table public.forum_posts enable row level security;
 
 -- Remove any older forum policies first, so permissive legacy policies cannot bypass these rules.
-do $
+do $$
 declare pol record;
 begin
   for pol in
@@ -56,7 +56,7 @@ begin
     execute format('drop policy if exists %I on %I.%I', pol.policyname, pol.schemaname, pol.tablename);
   end loop;
 end
-$;
+$$;
 
 drop policy if exists "forum topics are readable by everyone" on public.forum_topics;
 create policy "forum topics are readable by everyone"
