@@ -500,6 +500,12 @@ var rt=document.getElementById('rt');if(rt){rt.value=rd.t;var rn=document.getEle
 var ab=document.getElementById('anb');if(ab)ab.onclick=admAdd;var gb=document.getElementById('cmgf');if(gb)gb.onclick=function(){gifOpen(function(id){pg=id;cmL()})};gb=document.getElementById('cmgx');if(gb)gb.onclick=function(){pg='';cmL()};gb=document.getElementById('rgf');if(gb)gb.onclick=function(){gifOpen(function(id){rg=id;cmL()})};gb=document.getElementById('rgx');if(gb)gb.onclick=function(){rg='';cmL()};Array.prototype.forEach.call(el.querySelectorAll('.cmw'),function(a){a.onclick=function(){dmThread(a.getAttribute('data-u'))}});Array.prototype.forEach.call(el.querySelectorAll('.cpu'),function(a){a.onclick=function(){pfView(a.getAttribute('data-u'))}});
 Array.prototype.forEach.call(el.querySelectorAll('.cmq'),function(a){a.onclick=function(){admRm(a.getAttribute('data-a'))}})}
 function myLogin(){var i=((SES&&SES.user&&SES.user.identities)||[]).filter(function(x){return x.provider==='github'})[0];return i&&i.identity_data&&i.identity_data.user_name?String(i.identity_data.user_name).toLowerCase():''}
+function canDeleteForumRow(row){
+  if(ADM) return true;
+  if(!SES || !SES.user) return false;
+  if(row && row.user_id && row.user_id === SES.user.id) return true;
+  return false;
+}
 function ens(){return SES?Promise.resolve():sb.auth.signInAnonymously().then(function(r){if(r.error)throw r.error;SES=r.data.session})}
 function ci(c,r){var d=new Date(c.created_at),lc=L=='ru'?'ru-RU':'en-GB',m=M[L],own=SES&&c.user_id&&c.user_id===SES.user.id,n=LK[c.id]||0,me=!!MY[c.id],id=esc(c.id);
 return `<div class='cmi'>${pfAv(c)}<div>${pfNm(c)} ${c.is_github?`<span class='gh'>GitHub</span> `:''}<i>${d.toLocaleDateString(lc)} ${d.toLocaleTimeString(lc,{hour:'2-digit',minute:'2-digit'})}</i><br>${gbody(c.body)}<div class='cat'>${fl(c.files)}</div><div class='cac'><a class='cml${me?' on':''}' data-id='${id}'>${me?'♥':'♡'} ${n}</a>${r?'':`<a class='cmp' data-id='${id}'>${m.rep}</a>`}${SES&&isGh()&&c.is_github&&c.user_id&&c.user_id!==SES.user.id?`<a class='cmw' data-u='${esc(c.user_id)}'>${DT[L].write}</a>`:''}${own||ADM?`<a class='cmd' data-id='${id}'>${m.del}</a>`:''}</div>${!r&&rto!==null&&String(rto)===String(c.id)?`<div class='cmf'>${SES&&isGh()?'':`<input id='rn' maxlength='30' placeholder='${m.name}'>`}<textarea id='rt' maxlength='500' placeholder='${m.txt}'></textarea>${rg?gchip(rg,'rgx'):''}<div>${KLIPY_KEY?`<button class='cmb' id='rgf'>GIF</button> `:''}<button class='cmb' id='rs'>${m.send}</button> <button class='cmb' id='rc'>${m.can}</button></div><p class='cmsg'>${msg}</p></div>`:''}${r?'':(RP[c.id]||[]).map(function(x){return ci(x,true)}).join('')}</div></div>`}
@@ -507,8 +513,7 @@ function cmLike(id){var had=!!MY[id];if(had){delete MY[id];LK[id]=Math.max(0,(LK
 ens().then(function(){return had?sb.from('comment_likes').delete().eq('comment_id',id).eq('user_id',SES.user.id):sb.from('comment_likes').insert({comment_id:id})}).then(function(r){if(r.error)throw r.error}).catch(function(e){console.warn('like:',e);cmLoad()})}
 function rSend(pid){var ne=document.getElementById('rn'),t=document.getElementById('rt').value.trim(),nm=ne?ne.value.trim():'';if(busy||(!t&&!rg))return;busy=true;
 ens().then(function(){return sb.from('comments').insert({name:nm||(isGh()?'GitHub':M[L].anon),body:rg?((t?t+'\n':'')+'[gif:'+rg+']'):t,parent_id:pid})}).then(function(r){if(r.error)throw r.error;rto=null;rd={n:'',t:''};rg='';msg='';busy=false;return cmLoad()}).catch(function(e){busy=false;msg=/rate_limit/.test((e&&e.message)||'')?M[L].lim:M[L].err;cmL()})}
-function chkAdm(){pfMine();dmCount();if(!SES||!isGh()){ADM=false;adm=[];cmL();return Promise.resolve()}return sb.rpc('is_admin').then(function(r){ADM=!r.error&&r.data===true;if(!ADM){adm=[];cmL();return}return admLoad()})}
-function admLoad(){return sb.from('admins').select('github_login').order('github_login').then(function(r){adm=(r.data||[]).map(function(x){return x.github_login});cmL()})}
+function chkAdm(){pfMine();dmCount();if(!SES||!isGh()){ADM=false;adm=[];cmL();if(window.forumRender)forumRender();return Promise.resolve()}return sb.rpc('is_admin').then(function(r){ADM=!r.error&&r.data===true;if(!ADM){adm=[];cmL();if(window.forumRender)forumRender();return}return admLoad().then(function(){if(window.forumRender)forumRender()})})}function admLoad(){return sb.from('admins').select('github_login').order('github_login').then(function(r){adm=(r.data||[]).map(function(x){return x.github_login});cmL()})}
 function admAdd(){var i=document.getElementById('ana'),v=(i.value||'').trim().replace(/^@/,'').toLowerCase();if(!/^[a-z0-9-]{1,39}$/.test(v))return;sb.from('admins').insert({github_login:v}).then(function(r){if(r.error){console.warn('admin:',r.error.message);msg=M[L].admerr;cmL();return}msg='';return admLoad()})}
 function admRm(a){if(String(a).toLowerCase()===OWNER)return;sb.from('admins').delete().eq('github_login',a).then(function(r){if(r.error){console.warn('admin:',r.error.message);msg=M[L].admerr;cmL();return}return admLoad()})}
 function cmDel(id){if(!confirm(M[L].delq))return;var all=list.concat([].concat.apply([],Object.keys(RP).map(function(k){return RP[k]}))),c=all.filter(function(x){return String(x.id)===String(id)})[0];if(!c)return;var pre=SB_URL+'/storage/v1/object/public/'+BK+'/',paths=(Array.isArray(c.files)?c.files:[]).map(function(f){return f&&typeof f.u==='string'&&f.u.indexOf(pre)===0?decodeURIComponent(f.u.slice(pre.length)):''}).filter(Boolean);
@@ -549,11 +554,9 @@ function forumRender(){
   var t=forumTopics.filter(function(x){return String(x.id)===String(forumCurrent)})[0];
   if(!t){forumCurrent=null;return forumRender()}
   h+=forumButton(forumT('forumBack'),'back');
-  h+="<article class='forum-card'><div class='forum-title'>"+esc(t.title)+"</div>"+forumAuthor(t)+"<div class='forum-meta'>"+esc(forumWhen(t.created_at))+"</div><div class='forum-body'>"+gbody(t.body)+"</div><div class='cat'>"+fl(t.files)+"</div></article>";
-  var posts=Array.isArray(t.posts)?t.posts:[];
+  h+="<article class='forum-card'><div class='forum-title'>"+esc(t.title)+"</div>"+forumAuthor(t)+"<div class='forum-meta'>"+esc(forumWhen(t.created_at))+"</div><div class='forum-body'>"+gbody(t.body)+"</div><div class='cat'>"+fl(t.files)+"</div>"+(canDeleteForumRow(t)?`<div class='cac'><a class='forum-del-topic' data-id='${esc(t.id)}'>${L==='ru'?'🗑 Удалить тему':'🗑 Delete topic'}</a></div>`:'')+"</article>";  var posts=Array.isArray(t.posts)?t.posts:[];
   h+="<h3>"+esc(forumT('forumReplies'))+" ("+posts.length+")</h3>";
-h+=posts.length?posts.map(function(p){return "<article class='forum-card'>"+forumAuthor(p)+"<div class='forum-meta'>"+esc(forumWhen(p.created_at))+"</div><div class='forum-body'>"+gbody(p.body)+"</div><div class='cat'>"+fl(p.files)+"</div></article>"}).join(''):"<p>"+esc(forumT('forumNoReplies'))+"</p>";  if(isGh())h+="<div class='forum-form'><textarea id='forumReplyText' maxlength='3000' placeholder='"+esc(forumT('forumReplyPlaceholder'))+"'></textarea><input type='file' id='forumFileInput' multiple hidden><div class='forum-file-list' id='forumFileList'>"+forumAttachmentMarkup()+"</div>"+forumButton(L==='ru'?'📎 Прикрепить':'📎 Attach','attach',"id='forumAttach'")+" "+(KLIPY_KEY?forumButton('GIF','gif',"id='forumGifButton'"):'')+" "+forumButton(forumT('forumReply'),'reply')+"<span id='forumError' class='forum-error'></span></div>";
-  else h+="<p>"+esc(forumT('forumLoginHint'))+"</p>"+forumButton(forumT('forumSignIn'),'login');
+h+=posts.length?posts.map(function(p){return "<article class='forum-card'>"+forumAuthor(p)+"<div class='forum-meta'>"+esc(forumWhen(p.created_at))+"</div><div class='forum-body'>"+gbody(p.body)+"</div><div class='cat'>"+fl(p.files)+"</div>"+(canDeleteForumRow(p)?`<div class='cac'><a class='forum-del-post' data-id='${esc(p.id)}'>${L==='ru'?'🗑 Удалить':'🗑 Delete'}</a></div>`:'')+"</article>"}).join(''):"<p>"+esc(forumT('forumNoReplies'))+"</p>";  else h+="<p>"+esc(forumT('forumLoginHint'))+"</p>"+forumButton(forumT('forumSignIn'),'login');
  }else{
   if(isGh())h+=forumButton(forumT('forumCreate'),'new');
   else h+=forumButton(forumT('forumSignIn'),'login');
@@ -571,6 +574,8 @@ h+=posts.length?posts.map(function(p){return "<article class='forum-card'>"+foru
  Array.prototype.forEach.call(el.querySelectorAll('[data-faction=create]'),function(x){x.onclick=forumCreateTopic});
  Array.prototype.forEach.call(el.querySelectorAll('[data-faction=cancel]'),function(x){x.onclick=forumRender});
  Array.prototype.forEach.call(el.querySelectorAll('[data-faction=reply]'),function(x){x.onclick=forumReply});
+ Array.prototype.forEach.call(el.querySelectorAll('.forum-del-topic'),function(x){x.onclick=function(ev){ev.preventDefault();forumDeleteTopic(x.getAttribute('data-id'))}});
+ Array.prototype.forEach.call(el.querySelectorAll('.forum-del-post'),function(x){x.onclick=function(ev){ev.preventDefault();forumDeletePost(x.getAttribute('data-id'))}});
  forumWireComposer();
 }
 function forumLoad(){
@@ -652,6 +657,68 @@ function forumReply(){
   var t=forumTopics.filter(function(x){return String(x.id)===String(forumCurrent)})[0];if(t){t.posts.push(r.data);t.post_count=t.posts.length}
   forumFiles=[];forumGif='';forumBusy=false;forumRender();
  }).catch(function(e){console.warn('forum reply:',e);forumBusy=false;if(err)err.textContent=forumT('forumError')});
+}
+function forumDeleteTopic(id){
+  if(!id || !canDeleteForumRow(forumTopics.filter(function(t){return String(t.id)===String(id)})[0]||{})) return;
+  if(!confirm(L==='ru'?'Удалить тему со всеми ответами?':'Delete this topic with all replies?')) return;
+  var t = forumTopics.filter(function(x){return String(x.id)===String(id)})[0];
+  var pre = SB_URL+'/storage/v1/object/public/'+BK+'/';
+  var paths = [];
+  function collect(files){
+    (Array.isArray(files)?files:[]).forEach(function(f){
+      if(f && typeof f.u==='string' && f.u.indexOf(pre)===0){
+        paths.push(decodeURIComponent(f.u.slice(pre.length)));
+      }
+    });
+  }
+  if(t){ collect(t.files); (t.posts||[]).forEach(function(p){ collect(p.files); }); }
+
+  // Сначала удаляем ответы (FK может не каскадиться), потом тему
+  sb.from('forum_posts').delete().eq('topic_id', id).then(function(r1){
+    if(r1.error){ console.warn('forum delete posts:', r1.error.message); }
+    return sb.from('forum_topics').delete().eq('id', id);
+  }).then(function(r2){
+    if(r2.error) throw r2.error;
+    if(paths.length){
+      sb.storage.from(BK).remove(paths).then(function(x){
+        if(x.error) console.warn('forum files remove:', x.error.message);
+      });
+    }
+    forumCurrent = null;
+    return forumLoad();
+  }).catch(function(e){
+    console.warn('forum delete topic:', e);
+    var err = document.getElementById('forumError');
+    if(err) err.textContent = L==='ru'?'Не удалось удалить тему.':'Could not delete the topic.';
+  });
+}
+
+function forumDeletePost(id){
+  var all = [];
+  forumTopics.forEach(function(t){ (t.posts||[]).forEach(function(p){ all.push(p); }); });
+  var p = all.filter(function(x){return String(x.id)===String(id)})[0];
+  if(!p || !canDeleteForumRow(p)) return;
+  if(!confirm(L==='ru'?'Удалить этот ответ?':'Delete this reply?')) return;
+
+  var pre = SB_URL+'/storage/v1/object/public/'+BK+'/';
+  var paths = (Array.isArray(p.files)?p.files:[]).map(function(f){
+    return (f && typeof f.u==='string' && f.u.indexOf(pre)===0)
+      ? decodeURIComponent(f.u.slice(pre.length)) : '';
+  }).filter(Boolean);
+
+  sb.from('forum_posts').delete().eq('id', id).then(function(r){
+    if(r.error) throw r.error;
+    if(paths.length){
+      sb.storage.from(BK).remove(paths).then(function(x){
+        if(x.error) console.warn('forum files remove:', x.error.message);
+      });
+    }
+    return forumLoad();
+  }).catch(function(e){
+    console.warn('forum delete post:', e);
+    var err = document.getElementById('forumError');
+    if(err) err.textContent = L==='ru'?'Не удалось удалить ответ.':'Could not delete the reply.';
+  });
 }
 var forumLoading = false;
 var forumLoadToken = 0;
