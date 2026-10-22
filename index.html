@@ -88,6 +88,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .vid-item{background:#000;border:2px solid var(--line);padding:3px;border-radius:4px}
 .vid-item video, .vid-item iframe{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border:0}
 .vid-item figcaption{font-size:12px;color:var(--yel);padding:5px 2px;text-align:center}
+.vid-item img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;cursor:pointer}
+.mat-desc{padding:4px 6px;color:var(--text);font-size:12px}
+.mat-more,#cm .cm-more{display:block;margin:12px auto;padding:7px 16px;background:var(--org);color:#000;border:2px solid var(--line);font-weight:bold;cursor:pointer}
 </style>
 </head>
 <body>
@@ -136,7 +139,7 @@ ns5:{ru:'<b>Тизер Ugh (Tankman Mix)</b> <span class="new">NEW</span><br><i>
 ns6:{ru:'<b>Тизер Home Run из Weekend 2</b><br><i>07.10.2026 • Konri’s Team</i><br><a href="#" onclick="showVid(\'homerun\'); return false;">Смотреть видео</a>',en:'<b>Home Run teaser (Weekend 2)</b><br><i>07.10.2026 • Konri’s Team</i><br><a href="#" onclick="showVid(\'homerun\'); return false;">Watch video</a>'},
 ns4:{ru:'<b>Скриншоты в галерее</b><br><i>21.10.2026 • Konri’s Team</i><br>Выложили шесть скринов: меню, фриплей и все три микса Weekend 2.',en:'<b>Screenshots are up</b><br><i>21.10.2026 • Konri’s Team</i><br>Six shots: menus, freeplay and all three Weekend 2 mixes.'},
 ns3:{ru:'<b>Сайт открыт!</b><br><i>21.10.2026 • Konri’s Team</i><br>Тут будут новости, скрины и релизы наших модов.',en:'<b>Site is open!</b><br><i>21.10.2026 • Konri’s Team</i><br>News, screenshots and releases of our mods will live here.'},
-vid:{ru:'Видео',en:'Videos'}, vidtxt:{ru:'Тизеры, геймплей и наши видео из соцсетей.',en:'Teasers, gameplay and our videos from social media.'},
+vid:{ru:'Материалы',en:'Media'}, vidtxt:{ru:'Видео, скриншоты и другие материалы команды. Первые три показаны сразу — остальные можно раскрыть.',en:'Videos, screenshots and other team media. The first three are shown initially — expand to see the rest.'},
 mod:{ru:'<p>Это мод про то, как <b>Танкмен</b> встретился со <b>Спортменом</b>, и теперь ему придётся выяснять с ним отношения в рэп-батле. Всё происходит на уровне <b>Weekend 2</b>.</p><p><b>Что получите за прохождение:</b></p><ul><li>играбельного Танкмена;</li><li>Erect-, BF- и Pico-миксы песен из Weekend 2;</li><li>новые фишки для базовой игры — о которых игроки не просили, но будут рады.</li></ul><p><b>Дальше:</b> в будущих обновлениях будет больше песен, фишек, ивентов и катсцен.</p>',
 en:'<p>This mod is about <b>Tankman</b> meeting <b>Sportman</b> and having to settle things with him in a rap battle. It all happens in the <b>Weekend 2</b> level.</p><p><b>What you get for beating it:</b></p><ul><li>a playable Tankman;</li><li>Erect, BF and Pico mixes of the Weekend 2 songs;</li><li>new features for the base game — nobody asked for them, but players will be glad.</li></ul><p><b>Next:</b> future updates will bring more songs, features, events and cutscenes.</p>'},
 shtxt:{ru:'Скрины из мода. Клик — открыть крупнее.',en:'Screens from the mod. Click to enlarge.'},
@@ -171,29 +174,31 @@ function showVid(id) {
 function gal(){var g=document.getElementById('gal'),h='',n=Math.max(6,SHOTS.length);
 
 var VIDS = [
-  // {"src": "https://www.youtube.com/embed/ВАШ_АЙДИ", "ru": "Официальный трейлер", "en": "Official Trailer"},
-  {"src": "videos/home_run_teaser.mp4", "ru": "Тизер Home Run из Weekend 2", "en": "Home Run teaser (Weekend 2)"},
-  {"src": "videos/ugh_teaser.mp4", "ru": "Тизер Ugh (Tankman Mix)", "en": "Ugh (Tankman Mix) teaser"}
+  {"src":"videos/home_run_teaser.mp4","ru":"Тизер Home Run из Weekend 2","en":"Home Run teaser (Weekend 2)","descRu":"Короткий тизер микса Home Run для Weekend 2.","descEn":"A short teaser for the Home Run mix from Weekend 2."},
+  {"src":"videos/ugh_teaser.mp4","ru":"Тизер Ugh (Tankman Mix)","en":"Ugh (Tankman Mix) teaser","descRu":"Тизер микса Ugh с Танкменом.","descEn":"A teaser for the Tankman Mix of Ugh."}
 ];
-
+var materialsExpanded = false;
+function openMaterialShot(i){var sh=SHOTS[i];if(!sh)return;var lb=document.getElementById('lb');lb.querySelector('img').src=sh.src;lb.querySelector('p').textContent=sh[L]||'';lb.style.display='flex';}
 function vgal(){
-  var g=document.getElementById('vgal');
-  if(!g) return;
-  var h='';
-  for(var i=0;i<VIDS.length;i++){
-    var v=VIDS[i];
-    var media = v.src.indexOf('youtube') > -1 || v.src.indexOf('vimeo') > -1 
-      ? '<iframe src="'+v.src+'" allowfullscreen></iframe>' 
-      : '<video src="'+v.src+'" controls preload="metadata"></video>';
-      
-    h += '<figure class="vid-item">' + 
-         media + 
-         '<figcaption>' + (v[L]||'') + '</figcaption>' + 
-         '</figure>';
-  }
-  g.innerHTML = h;
+  var g=document.getElementById('vgal');if(!g)return;
+  var items=[];
+  VIDS.forEach(function(v){items.push({kind:'video',item:v});});
+  SHOTS.forEach(function(sh,i){items.push({kind:'shot',item:sh,index:i});});
+  var visible=materialsExpanded?items:items.slice(0,3),h='';
+  visible.forEach(function(entry){
+    var v=entry.item,media,caption=v[L]||'',desc='';
+    if(entry.kind==='video'){
+      media=v.src.indexOf('youtube')>-1||v.src.indexOf('vimeo')>-1?'<iframe src="'+v.src+'" allowfullscreen loading="lazy"></iframe>':'<video src="'+v.src+'" controls preload="metadata"></video>';
+      desc=v[L==='ru'?'descRu':'descEn']||'';
+    }else{
+      media='<img src="'+v.src+'" alt="" onclick="openMaterialShot('+entry.index+')">';
+      desc=L==='ru'?'Скриншот из проекта команды.':'A screenshot from the team project.';
+    }
+    h+='<figure class="vid-item">'+media+'<figcaption>'+caption+'</figcaption><div class="mat-desc">'+desc+'</div></figure>';
+  });
+  if(items.length>3)h+='<button type="button" class="mat-more" onclick="materialsExpanded=!materialsExpanded;vgal()">'+(materialsExpanded?(L==='ru'?'Свернуть':'Show less'):(L==='ru'?'Раскрыть материалы ('+items.length+')':'Show all media ('+items.length+')'))+'</button>';
+  g.innerHTML=h;
 }
-
 for(var i=0;i<n;i++){var s=SHOTS[i];h+=s?'<figure class="sh" data-i="'+i+'"><img src="'+s.src+'" alt=""><figcaption>'+(s[L]||'')+'</figcaption></figure>':'<figure class="sh empty"><div>NO SIGNAL</div><figcaption>'+T.slot[L]+'</figcaption></figure>'}
 g.innerHTML=h}
 document.getElementById('gal').onclick=function(e){var f=e.target.closest('.sh:not(.empty)');if(!f)return;var s=SHOTS[f.dataset.i],lb=document.getElementById('lb');lb.querySelector('img').src=s.src;lb.querySelector('p').textContent=s[L]||'';lb.style.display='flex'};
@@ -221,6 +226,7 @@ function upl(){var uid=SES.user.id;return Promise.all(pf.map(function(f,i){var e
 return sb.storage.from(BK).upload(path,f,{contentType:f.type||'application/octet-stream'}).then(function(r){if(r.error)throw r.error;return {u:sb.storage.from(BK).getPublicUrl(path).data.publicUrl,n:f.name.slice(0,80),t:f.type||'',s:f.size}})}))}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function isGh(){var u=SES&&SES.user;return !!(u&&u.app_metadata&&u.app_metadata.provider==='github')}
+var cmExpanded=false;
 function cmL(){var el=document.getElementById('cm');if(!el)return;var m=M[L];
 if(!sb){el.innerHTML=`<p class='cmsg'>${m.off}</p>`;return}
 var n=document.getElementById('cmn'),t=document.getElementById('cmt');if(t)dr.t=t.value;if(n)dr.n=n.value;var rt0=document.getElementById('rt'),rn0=document.getElementById('rn');if(rt0)rd.t=rt0.value;if(rn0)rd.n=rn0.value;
@@ -228,9 +234,11 @@ var gh=isGh(),md=gh?(SES.user.user_metadata||{}):{};
 var h=gh?`<div class='cmu'><img class='cav' src='${esc(md.avatar_url||'')}' alt=''><span>${m.as} <b>${esc(md.user_name||'GitHub')}</b> <button class='cmb' id='cmo'>${m.out}</button></span></div>`:`<p><button class='cmb' id='cmg'>${m.gh}</button></p>`;
 h+=`<div class='cmf'>${gh?'':`<input id='cmn' maxlength='30' placeholder='${m.name}'>`}<textarea id='cmt' maxlength='500' placeholder='${m.txt}'></textarea><div>${pf.map(function(f,i){return `<span class='cmx'>${esc(f.name)} (${fsz(f.size)}) <a class='cmr' data-i='${i}'>✕</a></span>`}).join('')}</div><input type='file' id='cmfi' multiple hidden><button class='cmb' id='cma'>${m.att}</button> <button class='cmb' id='cms'>${m.send}</button></div><p class='cmsg'>${msg}</p><p class='cmh'>${m.hint}${m.hint2}</p>`;
 if(ADM){var ml=myLogin();h+=`<div class='cmad'><b>${m.adm}</b><div>${adm.map(function(a){return `<span class='cmx'>${esc(a)} ${a.toLowerCase()===ml?'':`<a class='cmq' data-a='${esc(a)}'>✕</a>`}</span>`}).join('')}</div><input id='ana' maxlength='39' placeholder='${m.anm}'> <button class='cmb' id='anb'>${m.add}</button></div>`}
-h+=list.length?list.map(function(c){return ci(c,false)}).join(''):`<p>${m.empty}</p>`;
+h+=list.length?list.slice(0,cmExpanded?list.length:3).map(function(c){return ci(c,false)}).join(''):`<p>${m.empty}</p>`;
+if(list.length>3)h+=`<button type='button' class='cm-more' id='cmm'>${cmExpanded?(L==='ru'?'Свернуть комментарии':'Show fewer comments'):(L==='ru'?'Раскрыть комментарии ('+list.length+')':'Show all comments ('+list.length+')')}</button>`;
 el.innerHTML=h;
 n=document.getElementById('cmn');t=document.getElementById('cmt');t.value=dr.t;if(n)n.value=dr.n;
+var cmmb=document.getElementById('cmm');if(cmmb)cmmb.onclick=function(){cmExpanded=!cmExpanded;cmL()};
 var b=document.getElementById('cmg');if(b)b.onclick=function(){sb.auth.signInWithOAuth({provider:'github',options:{redirectTo:location.href.split('#')[0]}})};
 b=document.getElementById('cmo');if(b)b.onclick=function(){sb.auth.signOut()};
 document.getElementById('cms').onclick=cmSend;if(busy){document.getElementById('cms').disabled=true;document.getElementById('cma').disabled=true}
