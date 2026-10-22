@@ -74,7 +74,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 #forumApp .forum-meta{font-size:11px;color:#c98aa8;margin-top:3px}
 #forumApp .forum-body{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:7px}
 #forumApp .forum-form{border:1px dashed var(--org);padding:8px;margin:8px 0}
-#forumApp .forum-form input,#forumApp .forum-form textarea{display:block;width:100%;background:#1a0710;color:var(--text);border:2px inset #555;font:13px Verdana,Tahoma,Arial,sans-serif;padding:7px;margin:5px 0}
+#forumApp .forum-form input,#forumApp .forum-form textarea{display:block;width:100%;background:#1a0710;color:var(--text);border:2px inset #555;font:13px Verdana,Tahoma,Arial,sans-serif;padding:7px;margin:5px 0}#forumApp .forum-form input[type=file][hidden]{display:none}
 #forumApp .forum-form textarea{min-height:90px;resize:vertical}
 #forumApp .forum-action{background:linear-gradient(#ffb43a,#e07800);color:#000;border:2px outset #ffd27a;font:bold 12px Verdana;padding:6px 12px;cursor:pointer;margin:3px 4px 3px 0}
 #forumApp .forum-action:disabled{opacity:.5;cursor:wait}
@@ -590,13 +590,13 @@ function forumLoad(){
   });
  }).catch(function(e){console.warn('forum load:',e);el.innerHTML="<p class='forum-error'>"+esc(forumT('forumError'))+"</p>"});
 }
-function forumLoadProfiles(){var ids={};forumTopics.forEach(function(t){if(t.user_id)ids[t.user_id]=1;(t.posts||[]).forEach(function(p){if(p.user_id)ids[p.user_id]=1})});var a=Object.keys(ids);if(!a.length||!sb)return;sb.from('profiles').select('*').in('user_id',a).then(function(r){if(r.error){console.warn('forum profiles:',r.error.message);return}(r.data||[]).forEach(function(p){PF[p.user_id]=p});forumRender()})}
+function forumLoadProfiles(){var ids={};forumTopics.forEach(function(t){if(t.user_id)ids[t.user_id]=1;(t.posts||[]).forEach(function(p){if(p.user_id)ids[p.user_id]=1})});var a=Object.keys(ids);if(!a.length||!sb)return;Promise.all([sb.from('profiles').select('*').in('user_id',a),sb.from('comments').select('user_id,name,avatar_url,created_at').in('user_id',a).order('created_at',{ascending:false})]).then(function(rs){if(!rs[0].error)(rs[0].data||[]).forEach(function(p){PF[p.user_id]=p});var cm={};if(!rs[1].error)(rs[1].data||[]).forEach(function(c){if(c.user_id&&!cm[c.user_id])cm[c.user_id]=c});forumTopics.forEach(function(t){[t].concat(t.posts||[]).forEach(function(x){var c=cm[x.user_id];if(c){if(!x.name)x.name=c.name;if(!x.avatar_url)x.avatar_url=c.avatar_url}})});forumRender()}).catch(function(e){console.warn('forum profiles:',e)})}
 function forumOpenTopic(id){forumCurrent=String(id);forumRender()}
 function forumCreateTopic(){
  if(forumBusy||!isGh())return;
  var title=document.getElementById('forumNewTitle'),body=document.getElementById('forumNewBody'),err=document.getElementById('forumNewError');
  var a=(title&&title.value||'').trim(),b=(body&&body.value||'').trim();
- if(!a||!b){if(err)err.textContent=L==='ru'?'Заполни название и текст темы.':'Enter a title and post.';return}
+ if(!a||(!b&&!forumFiles.length&&!forumGif)){if(err)err.textContent=L==='ru'?'Добавь название и текст, файл или GIF.':'Enter a title and add text, a file or a GIF.';return}
  forumBusy=true;var author=forumCurrentAuthor(),content=forumBodyWithGif(b);
  forumUploadFiles().then(function(files){return sb.from('forum_topics').insert({mod_slug:'tankmans-night-missions',title:a,body:content,name:author.name,avatar_url:author.avatar_url,files:files}).select('id,mod_slug,title,body,user_id,created_at,name,avatar_url,files').single()}).then(function(r){
   if(r.error)throw r.error;
