@@ -139,7 +139,7 @@ ns5:{ru:'<b>Тизер Ugh (Tankman Mix)</b> <span class="new">NEW</span><br><i>
 ns6:{ru:'<b>Тизер Home Run из Weekend 2</b><br><i>07.10.2026 • Konri’s Team</i><br><a href="#" onclick="showVid(\'homerun\'); return false;">Смотреть видео</a>',en:'<b>Home Run teaser (Weekend 2)</b><br><i>07.10.2026 • Konri’s Team</i><br><a href="#" onclick="showVid(\'homerun\'); return false;">Watch video</a>'},
 ns4:{ru:'<b>Скриншоты в галерее</b><br><i>21.10.2026 • Konri’s Team</i><br>Выложили шесть скринов: меню, фриплей и все три микса Weekend 2.',en:'<b>Screenshots are up</b><br><i>21.10.2026 • Konri’s Team</i><br>Six shots: menus, freeplay and all three Weekend 2 mixes.'},
 ns3:{ru:'<b>Сайт открыт!</b><br><i>21.10.2026 • Konri’s Team</i><br>Тут будут новости, скрины и релизы наших модов.',en:'<b>Site is open!</b><br><i>21.10.2026 • Konri’s Team</i><br>News, screenshots and releases of our mods will live here.'},
-vid:{ru:'Материалы',en:'Media'}, vidtxt:{ru:'Видео, скриншоты и другие материалы команды. Первые три показаны сразу — остальные можно раскрыть.',en:'Videos, screenshots and other team media. The first three are shown initially — expand to see the rest.'},
+vid:{ru:'Материалы',en:'Media'}, vidtxt:{ru:'Видео и тизеры команды. Первые три показаны сразу — остальные можно раскрыть.',en:'Team videos and teasers. The first three are shown initially — expand to see the rest.'},
 mod:{ru:'<p>Это мод про то, как <b>Танкмен</b> встретился со <b>Спортменом</b>, и теперь ему придётся выяснять с ним отношения в рэп-батле. Всё происходит на уровне <b>Weekend 2</b>.</p><p><b>Что получите за прохождение:</b></p><ul><li>играбельного Танкмена;</li><li>Erect-, BF- и Pico-миксы песен из Weekend 2;</li><li>новые фишки для базовой игры — о которых игроки не просили, но будут рады.</li></ul><p><b>Дальше:</b> в будущих обновлениях будет больше песен, фишек, ивентов и катсцен.</p>',
 en:'<p>This mod is about <b>Tankman</b> meeting <b>Sportman</b> and having to settle things with him in a rap battle. It all happens in the <b>Weekend 2</b> level.</p><p><b>What you get for beating it:</b></p><ul><li>a playable Tankman;</li><li>Erect, BF and Pico mixes of the Weekend 2 songs;</li><li>new features for the base game — nobody asked for them, but players will be glad.</li></ul><p><b>Next:</b> future updates will bring more songs, features, events and cutscenes.</p>'},
 shtxt:{ru:'Скрины из мода. Клик — открыть крупнее.',en:'Screens from the mod. Click to enlarge.'},
@@ -182,7 +182,7 @@ function vgal(){
   var g=document.getElementById('vgal');if(!g)return;
   var items=[];
   VIDS.forEach(function(v){items.push({kind:'video',item:v});});
-  SHOTS.forEach(function(sh,i){items.push({kind:'shot',item:sh,index:i});});
+
   var visible=materialsExpanded?items:items.slice(0,3),h='';
   visible.forEach(function(entry){
     var v=entry.item,media,caption=v[L]||'',desc='';
