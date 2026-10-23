@@ -94,7 +94,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .gh{background:#000;color:#fff;font-size:10px;padding:0 4px;border:1px solid #888}
 .cim{max-width:100%;max-height:260px;display:block;margin:4px 0;border:1px solid var(--line)}.cat{margin-top:2px}.cfl{display:inline-block;margin:2px 8px 2px 0}.cmx{display:inline-block;font-size:11px;border:1px dashed var(--line);padding:1px 6px;margin:3px 4px 3px 0}.cmr{cursor:pointer;color:var(--org)}
 .cmd{text-decoration:underline}
-.cac{margin-top:3px;font-size:11px}.cac a{cursor:pointer;color:var(--org);margin-right:10px}.cac a.on{font-weight:bold}
+.cac{margin-top:3px;font-size:11px}.cac a{cursor:pointer;color:var(--org);margin-right:10px}.cac a.on{font-weight:bold}.flk.on{color:var(--red)}.pres{margin-left:6px;font-size:11px;color:#c98aa8;font-weight:normal}.pon{color:#7f7;font-weight:normal}
 .cmad{border:1px dashed var(--org);padding:6px;margin:8px 0}.cmsg{color:var(--org);margin:4px 0}.cmh{font-size:11px;color:#c98aa8}
 @media(max-width:640px){#head{flex-wrap:wrap}}
 #vgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:10px}
@@ -222,7 +222,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 </div></div>
 <div id="foot" data-t="foot"></div>
 </div>
-<div id="lb" onclick="this.style.display='none'; this.querySelector('img').style.display=''; this.querySelector('p').innerHTML='';"><img alt=""><p></p></div>
+<div id="lb" onclick="lbClose(event)"><img alt=""><p></p></div>
 <script>
 var T={
 tag:{ru:'Мы делаем ИМБОВЫЕ моды на Friday Night Funkin’',en:'We make OP mods for Friday Night Funkin’'},
@@ -539,7 +539,7 @@ function forumT(k){return (T[k]&&T[k][L])||k}
 function forumMsg(txt){var e=document.getElementById('forumError')||document.getElementById('forumNewError');if(e)e.textContent=txt||''}
 function forumWhen(v){try{return new Date(v).toLocaleString(L==='ru'?'ru-RU':'en-GB',{dateStyle:'medium',timeStyle:'short'})}catch(e){return ''}}
 function forumAuthorName(row){var uid=row&&row.user_id,p=uid&&PF[uid],md=(SES&&SES.user&&SES.user.id===uid&&SES.user.user_metadata)||{},n=(p&&p.display_name)||row.name||md.user_name||md.user_name||md.full_name||md.preferred_username;return n||('User '+String(uid||'').slice(0,8))}
-function forumAuthor(row){var uid=row&&row.user_id,p=uid&&PF[uid],fb=row&&row.avatar_url,click=p?` data-u='${esc(uid)}'`:'';return `<div class='forum-author'>${avh(p,fb,'forum-avatar'+(p?' cpu':''),click)}<span>${p?`<b class='cpu' data-u='${esc(uid)}'${okC(p.name_color)?` style='color:${p.name_color}'`:''}>${esc(p.display_name||row.name||forumAuthorName(row))}</b>`:`<b>${esc(forumAuthorName(row))}</b>`}</span>${row&&row.is_github?"<span class='gh'>GitHub</span>":''}</div>`}
+function forumAuthor(row){var uid=row&&row.user_id,p=uid&&PF[uid],fb=row&&row.avatar_url,click=p?` data-u='${esc(uid)}'`:'';return `<div class='forum-author'>${avh(p,fb,'forum-avatar'+(p?' cpu':''),click)}<span>${p?`<b class='cpu' data-u='${esc(uid)}'${okC(p.name_color)?` style='color:${p.name_color}'`:''}>${esc(p.display_name||row.name||forumAuthorName(row))}</b>`:`<b>${esc(forumAuthorName(row))}</b>`}</span>${uid?presSpan(uid):''}${row&&row.is_github?"<span class='gh'>GitHub</span>":''}</div>`}
 function forumCurrentAuthor(){var u=SES&&SES.user||{},md=u.user_metadata||{},idn=(u.identities||[]).filter(function(x){return x.provider==='github'})[0],idmd=idn&&idn.identity_data||{};return {name:(PF[u.id]&&PF[u.id].display_name)||idmd.user_name||md.user_name||md.full_name||md.preferred_username||'GitHub',avatar_url:md.avatar_url||idmd.avatar_url||null}}
 function forumAttachmentMarkup(){return forumFiles.map(function(f,i){return `<span>${esc(f.name)} (${fsz(f.size)}) <a href='#' data-forum-remove='${i}'>✕</a></span>`}).join('')+(forumGif?`<span>GIF <a href='#' data-forum-gif-remove>✕</a></span>`:'')}
 function forumRefreshFiles(){var e=document.getElementById('forumFileList');if(e)e.innerHTML=forumAttachmentMarkup();Array.prototype.forEach.call(document.querySelectorAll('[data-forum-remove]'),function(a){a.onclick=function(ev){ev.preventDefault();forumFiles.splice(+a.getAttribute('data-forum-remove'),1);forumRefreshFiles()}});var gr=document.querySelector('[data-forum-gif-remove]');if(gr)gr.onclick=function(ev){ev.preventDefault();forumGif='';forumRefreshFiles()}}
@@ -554,7 +554,7 @@ function forumRender(){
   var t=forumTopics.filter(function(x){return String(x.id)===String(forumCurrent)})[0];
   if(!t){forumCurrent=null;return forumRender()}
   h+=forumButton(forumT('forumBack'),'back');
-  h+="<article class='forum-card'><div class='forum-title'>"+esc(t.title)+"</div>"+forumAuthor(t)+"<div class='forum-meta'>"+esc(forumWhen(t.created_at))+"</div><div class='forum-body'>"+gbody(t.body)+"</div><div class='cat'>"+fl(t.files)+"</div>"+(canDeleteForumRow(t)?`<div class='cac'><a class='forum-del-topic' data-id='${esc(t.id)}'>${L==='ru'?'🗑 Удалить тему':'🗑 Delete topic'}</a></div>`:'')+"</article>";  var posts=Array.isArray(t.posts)?t.posts:[];
+  h+="<article class='forum-card'><div class='forum-title'>"+esc(t.title)+"</div>"+forumAuthor(t)+"<div class='forum-meta'>"+esc(forumWhen(t.created_at))+"</div><div class='forum-body'>"+gbody(t.body)+"</div><div class='cat'>"+fl(t.files)+"</div><div class='cac'>"+forumLikeBtn('topic',t.id)+"</div>"+(canDeleteForumRow(t)?`<div class='cac'><a class='forum-del-topic' data-id='${esc(t.id)}'>${L==='ru'?'🗑 Удалить тему':'🗑 Delete topic'}</a></div>`:'')+"</article>";  var posts=Array.isArray(t.posts)?t.posts:[];
   h+="<h3>"+esc(forumT('forumReplies'))+" ("+posts.length+")</h3>";
   h+=posts.length
     ?posts.map(function(p){
@@ -562,7 +562,7 @@ function forumRender(){
         +forumAuthor(p)
         +"<div class='forum-meta'>"+esc(forumWhen(p.created_at))+"</div>"
         +"<div class='forum-body'>"+gbody(p.body)+"</div>"
-        +"<div class='cat'>"+fl(p.files)+"</div>"
+        +"<div class='cat'>"+fl(p.files)+"</div><div class='cac'>"+forumLikeBtn('post',p.id)+"</div>"
         +(canDeleteForumRow(p)?`<div class='cac'><a class='forum-del-post' data-id='${esc(p.id)}'>${L==='ru'?'🗑 Удалить':'🗑 Delete'}</a></div>`:'')
         +"</article>";
     }).join('')
@@ -576,7 +576,7 @@ function forumRender(){
       +"<div class='forum-title' data-topic='"+esc(t.id)+"'>"+esc(t.title)+"</div>"
       +"<div class='forum-meta'>"+esc(forumWhen(t.created_at))+" · "+(t.post_count||0)+" "+esc(forumT('forumReplies').toLowerCase())+"</div>"
       +"<div class='forum-body'>"+gbody((String(t.body||'').slice(0,220))+(String(t.body||'').length>220?'…':''))+"</div>"
-      +"<div class='cat'>"+fl(t.files)+"</div>"
+      +"<div class='cat'>"+fl(t.files)+"</div><div class='cac'>"+forumLikeBtn('topic',t.id)+"</div>"
       +"</article>";
   }).join('');
   else h+="<p>"+esc(forumT('forumEmpty'))+"</p>";
@@ -594,6 +594,7 @@ function forumRender(){
  Array.prototype.forEach.call(el.querySelectorAll('[data-faction=reply]'),function(x){x.onclick=forumReply});
  Array.prototype.forEach.call(el.querySelectorAll('.forum-del-topic'),function(x){x.onclick=function(ev){ev.preventDefault();forumDeleteTopic(x.getAttribute('data-id'))}});
  Array.prototype.forEach.call(el.querySelectorAll('.forum-del-post'),function(x){x.onclick=function(ev){ev.preventDefault();forumDeletePost(x.getAttribute('data-id'))}});
+ Array.prototype.forEach.call(el.querySelectorAll('.flk'),function(x){x.onclick=function(){forumLike(x)}});
  forumWireComposer();
 }
 function forumLoad(){
@@ -652,7 +653,7 @@ function forumLoad(){
     if(el2) el2.innerHTML = "<p class='forum-error'>" + esc(forumT('forumError')) + "</p>";
   });
 }
-function forumLoadProfiles(){var ids={};forumTopics.forEach(function(t){if(t.user_id)ids[t.user_id]=1;(t.posts||[]).forEach(function(p){if(p.user_id)ids[p.user_id]=1})});var a=Object.keys(ids);if(!a.length||!sb)return;Promise.all([sb.from('profiles').select('*').in('user_id',a),sb.from('comments').select('user_id,name,avatar_url,created_at').in('user_id',a).order('created_at',{ascending:false})]).then(function(rs){if(!rs[0].error)(rs[0].data||[]).forEach(function(p){PF[p.user_id]=p});var cm={};if(!rs[1].error)(rs[1].data||[]).forEach(function(c){if(c.user_id&&!cm[c.user_id])cm[c.user_id]=c});forumTopics.forEach(function(t){[t].concat(t.posts||[]).forEach(function(x){var c=cm[x.user_id];if(c){if(!x.name)x.name=c.name;if(!x.avatar_url)x.avatar_url=c.avatar_url}})});forumRender()}).catch(function(e){console.warn('forum profiles:',e)})}
+function forumLoadProfiles(){forumLoadExtras();var ids={};forumTopics.forEach(function(t){if(t.user_id)ids[t.user_id]=1;(t.posts||[]).forEach(function(p){if(p.user_id)ids[p.user_id]=1})});var a=Object.keys(ids);if(!a.length||!sb)return;Promise.all([sb.from('profiles').select('*').in('user_id',a),sb.from('comments').select('user_id,name,avatar_url,created_at').in('user_id',a).order('created_at',{ascending:false})]).then(function(rs){if(!rs[0].error)(rs[0].data||[]).forEach(function(p){PF[p.user_id]=p});var cm={};if(!rs[1].error)(rs[1].data||[]).forEach(function(c){if(c.user_id&&!cm[c.user_id])cm[c.user_id]=c});forumTopics.forEach(function(t){[t].concat(t.posts||[]).forEach(function(x){var c=cm[x.user_id];if(c){if(!x.name)x.name=c.name;if(!x.avatar_url)x.avatar_url=c.avatar_url}})});forumRender()}).catch(function(e){console.warn('forum profiles:',e)})}
 function forumOpenTopic(id){forumCurrent=String(id);forumRender()}
 function forumCreateTopic(){
  if(forumBusy||!isGh())return;
@@ -738,6 +739,66 @@ function forumDeletePost(id){
     if(err) err.textContent = L==='ru'?'Не удалось удалить ответ.':'Could not delete the reply.';
   });
 }
+/* ===== Лайки на форуме и статус "в сети" ===== */
+var FLK={},FMY={},PRS={},PRIDS={};
+function fkey(k,id){return k+':'+String(id)}
+function forumLikeBtn(kind,id){var k=fkey(kind,id),me=!!FMY[k];return "<a class='flk"+(me?' on':'')+"' data-kind='"+kind+"' data-id='"+esc(id)+"'>"+(me?'♥':'♡')+' '+(FLK[k]||0)+"</a>"}
+function forumLike(a){
+ if(!sb)return;
+ var kind=a.getAttribute('data-kind'),id=a.getAttribute('data-id'),k=fkey(kind,id),had=!!FMY[k];
+ if(had){delete FMY[k];FLK[k]=Math.max(0,(FLK[k]||1)-1)}else{FMY[k]=1;FLK[k]=(FLK[k]||0)+1}
+ a.className='flk'+(had?'':' on');a.innerHTML=(had?'♡':'♥')+' '+(FLK[k]||0);
+ ens().then(function(){return had?sb.from('forum_likes').delete().eq('target_kind',kind).eq('target_id',id).eq('user_id',SES.user.id):sb.from('forum_likes').insert({target_kind:kind,target_id:id})}).then(function(r){if(r.error)throw r.error}).catch(function(e){console.warn('forum like:',e);forumLoadExtras()});
+}
+function forumLoadExtras(){
+ if(!sb)return;
+ var ids=[],uids={};
+ forumTopics.forEach(function(t){ids.push(String(t.id));if(t.user_id)uids[t.user_id]=1;(t.posts||[]).forEach(function(p){ids.push(String(p.id));if(p.user_id)uids[p.user_id]=1})});
+ if(!ids.length)return;
+ Promise.all([sb.from('forum_likes').select('target_kind,target_id,user_id').in('target_id',ids),presFetch(Object.keys(uids))]).then(function(a){
+   var r=a[0];
+   if(r.error){console.warn('forum likes:',r.error.message)}else{
+     FLK={};FMY={};var me=SES&&SES.user&&SES.user.id;
+     (r.data||[]).forEach(function(x){var k=fkey(x.target_kind,x.target_id);FLK[k]=(FLK[k]||0)+1;if(me&&x.user_id===me)FMY[k]=1});
+   }
+   forumRender();
+ }).catch(function(e){console.warn('forum extras:',e)});
+}
+function presFetch(ids){
+ if(!sb||!ids||!ids.length)return Promise.resolve();
+ ids.forEach(function(i){PRIDS[i]=1});
+ return sb.from('user_presence').select('user_id,last_seen').in('user_id',Object.keys(PRIDS)).then(function(r){
+   if(r.error){console.warn('presence:',r.error.message);return}
+   (r.data||[]).forEach(function(p){PRS[p.user_id]=p.last_seen});
+ });
+}
+function presHTML(uid){
+ var ts=PRS[uid];if(!ts)return '';
+ var ms=Date.now()-new Date(ts).getTime();
+ if(ms<150000)return "<b class='pon'>● "+(L==='ru'?'в сети':'online')+"</b>";
+ var m=Math.floor(ms/60000),ago;
+ if(m<60)ago=m+(L==='ru'?' мин':' min');
+ else if(m<1440)ago=Math.floor(m/60)+(L==='ru'?' ч':' h');
+ else ago=Math.floor(m/1440)+(L==='ru'?' дн':' d');
+ return (L==='ru'?'был(а) ':'last seen ')+ago+(L==='ru'?' назад':' ago');
+}
+function presSpan(uid){return "<span class='pres' data-pu='"+esc(uid)+"'>"+presHTML(uid)+"</span>"}
+function presTick(){document.querySelectorAll('.pres[data-pu]').forEach(function(el){el.innerHTML=presHTML(el.getAttribute('data-pu'))})}
+function presBeat(){
+ if(!sb||!SES||!isGh()||document.hidden)return;
+ sb.from('user_presence').upsert({user_id:SES.user.id,last_seen:new Date().toISOString()}).then(function(r){if(r.error)console.warn('presence beat:',r.error.message)});
+}
+function lbClose(e){
+ var lb=document.getElementById('lb');if(!lb)return;
+ if(e&&e.target&&e.target.tagName==='VIDEO')return;
+ lb.querySelectorAll('video').forEach(function(v){try{v.pause();v.removeAttribute('src');v.load()}catch(x){}});
+ lb.style.display='none';lb.querySelector('img').style.display='';lb.querySelector('p').innerHTML='';
+}
+setTimeout(presBeat,3000);
+setInterval(presBeat,60000);
+setInterval(function(){presFetch(Object.keys(PRIDS)).then(presTick)},60000);
+setInterval(presTick,30000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden){presBeat();presTick()}});
 var forumLoading = false;
 var forumLoadToken = 0;
 
