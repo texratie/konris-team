@@ -595,6 +595,7 @@ function forumRender(){
  Array.prototype.forEach.call(el.querySelectorAll('.forum-del-topic'),function(x){x.onclick=function(ev){ev.preventDefault();forumDeleteTopic(x.getAttribute('data-id'))}});
  Array.prototype.forEach.call(el.querySelectorAll('.forum-del-post'),function(x){x.onclick=function(ev){ev.preventDefault();forumDeletePost(x.getAttribute('data-id'))}});
  Array.prototype.forEach.call(el.querySelectorAll('.flk'),function(x){x.onclick=function(){forumLike(x)}});
+ Array.prototype.forEach.call(el.querySelectorAll('.cpu'),function(a){a.onclick=function(){pfView(a.getAttribute('data-u'))}});
  forumWireComposer();
 }
 function forumLoad(){
