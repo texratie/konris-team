@@ -6,7 +6,7 @@
 <title>Konri’s Team — FNF Mods</title>
 <style>
 :root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
---bg:#1a0710;--box:#2a0d1c;--box2:#3a1328;--line:#7a2a4e;--text:#f0d8e4;--org:#ff9900;--yel:#ffe14d;--red:#c8102e;--stripe:#3a0d22;--head1:#8a2a5a;--acc1:#ffb43a;--acc2:#e07800;--muted:#c98aa8}
+--bg:#1a0710;--box:#2a0d1c;--box2:#3a1328;--line:#7a2a4e;--text:#f0d8e4;--org:#ff9900;--yel:#ffe14d;--red:#c8102e;--stripe:#3a0d22;--head1:#8a2a5a;--acc1:#ffb43a;--acc2:#e07800;--muted:#c98aa8;--h2text:#000;--navtext:#000}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*:before,*:after{box-sizing:inherit}
 body{margin:0;background:var(--bg) repeating-linear-gradient(45deg,var(--stripe) 0 6px,var(--bg) 6px 12px);background-size:16.97px 16.97px;animation:bgm 1.5s linear infinite;color:var(--text);font:13px/1.45 Verdana,Tahoma,Arial,sans-serif}
@@ -17,13 +17,13 @@ a{color:var(--yel)}a:hover{color:#fff;background:var(--red)}
 #head h1{margin:0;font:bold 30px Impact,'Arial Black',sans-serif;color:var(--org);text-shadow:2px 2px 0 #000,-1px -1px 0 #7a3b00;letter-spacing:1px}
 #head small{color:var(--yel);display:block;font-size:12px}
 #nav{background:var(--org);border:2px solid var(--line);border-top:0;display:flex;flex-wrap:wrap}
-#nav a{color:#000;font-weight:bold;text-decoration:none;padding:5px 14px;border-right:1px solid #8a4b00;text-transform:uppercase;font-size:12px}
+#nav a{color:var(--navtext);font-weight:bold;text-decoration:none;padding:5px 14px;border-right:1px solid #8a4b00;text-transform:uppercase;font-size:12px}
 #nav a:hover{background:#000;color:var(--org)}
 #cols{display:flex;gap:8px;margin-top:8px;align-items:flex-start}
 #side{width:200px;flex:none}
 #main{flex:1;min-width:0}
 .box{background:var(--box);border:2px solid var(--line);margin-bottom:8px}
-.box h2{margin:0;background:linear-gradient(var(--acc1),var(--acc2));color:#000;font-size:13px;padding:3px 8px;text-transform:uppercase;border-bottom:2px solid #7a3b00}
+.box h2{margin:0;background:linear-gradient(var(--acc1),var(--acc2));color:var(--h2text);font-size:13px;padding:3px 8px;text-transform:uppercase;border-bottom:2px solid #7a3b00}
 .box .in{padding:8px}
 .box ul{margin:0;padding-left:16px}
 .hit{font:bold 18px 'Courier New',monospace;background:#000;color:#3f3;text-align:center;padding:4px;border:2px inset #555;letter-spacing:4px}
@@ -211,6 +211,21 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .ndel{cursor:pointer;color:var(--org);font-size:11px;margin-left:8px;text-decoration:underline}
 .ntext{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:4px}
 .dbnews b{color:var(--yel)}
+
+body.th-ng{background:#2b2d31 repeating-linear-gradient(90deg,#4a4e55 0 1px,#25272b 1px 5px,#3a3e44 5px 6px,#222428 6px 11px);animation:none}
+body.th-ng::before{display:none}
+body.th-ng #head{background:linear-gradient(180deg,#0b0b0b 0%,#ffb300 42%,#ff8a00 78%,#0b0b0b 100%);border-color:#0c0c0e}
+body.th-ng #head h1{color:#fff;text-shadow:2px 2px 0 #000}
+body.th-ng #head small{color:#000;font-weight:bold}
+body.th-ng #nav{background:linear-gradient(#ffb300,#e06c00);border-color:#0c0c0e;font-family:Impact,'Arial Narrow',Arial,sans-serif}
+body.th-ng #nav a{font-size:13px;letter-spacing:.5px;padding:7px 14px;border-right:2px solid #0c0c0e}
+body.th-ng #nav a:hover{background:#000;color:#ffb300}
+body.th-ng .box{background:linear-gradient(#2c2e33,#1e2024);border:2px solid #0c0c0e;box-shadow:inset 0 1px 0 #3a3d44}
+body.th-ng .box h2{background:linear-gradient(#3a3d44,#1c1e22);color:var(--org);border-bottom:2px solid #000;font-family:Impact,'Arial Narrow',Arial,sans-serif;font-size:15px;letter-spacing:.5px;text-shadow:1px 1px 0 #000}
+body.th-ng .box h2:before{content:"\2605  ";color:#ffb300}
+body.th-ng .news{border-bottom:1px solid #2a2c31}
+body.th-ng .news b,body.th-ng .cmi b,body.th-ng .forum-title{color:var(--org)}
+body.th-ng input:not([type=file]),body.th-ng textarea{background:#ffc20e;color:#000;border:1px solid #0c0c0e}
 </style>
 </head>
 <body>
@@ -378,10 +393,14 @@ var THEMES={
  royal:{name:{ru:'Королевский',en:'Royal'},c:['#c77dff','#3a1a6b'],v:{bg:'#120820',box:'#1d0f33',box2:'#2a1748',line:'#6a3aa0',text:'#eee0ff',org:'#c77dff',yel:'#ffe27a',red:'#d43a7a',stripe:'#2a1748',head1:'#5a2a9a',acc1:'#d9a6ff',acc2:'#9a4ee0',muted:'#b7a0d4'}},
  army:{name:{ru:'Хаки',en:'Army'},c:['#8a9a3a','#1f260a'],v:{bg:'#12160a',box:'#1b200e',box2:'#252c12',line:'#5a6a2a',text:'#e6ecc8',org:'#b5c24a',yel:'#f0e27a',red:'#a8382a',stripe:'#252c12',head1:'#4a5a22',acc1:'#c8d86a',acc2:'#8a9a3a',muted:'#aab88a'}},
  night:{name:{ru:'Ночь',en:'Night'},c:['#6a6a9a','#0a0a1a'],v:{bg:'#070710',box:'#0f0f1e',box2:'#17172c',line:'#3a3a6a',text:'#d8d8f0',org:'#8a8ad0',yel:'#e0e07a',red:'#8a2a5a',stripe:'#17172c',head1:'#2a2a5a',acc1:'#a0a0e8',acc2:'#5a5ab0',muted:'#9a9ac8'}},
- mono:{name:{ru:'Монохром',en:'Mono'},c:['#999999','#22222a'],v:{bg:'#111111',box:'#1c1c1c',box2:'#262626',line:'#555555',text:'#eeeeee',org:'#bbbbbb',yel:'#ffffff',red:'#777777',stripe:'#262626',head1:'#444444',acc1:'#cccccc',acc2:'#888888',muted:'#aaaaaa'}}
+ mono:{name:{ru:'Монохром',en:'Mono'},c:['#999999','#22222a'],v:{bg:'#111111',box:'#1c1c1c',box2:'#262626',line:'#555555',text:'#eeeeee',org:'#bbbbbb',yel:'#ffffff',red:'#777777',stripe:'#262626',head1:'#444444',acc1:'#cccccc',acc2:'#888888',muted:'#aaaaaa'}},
+ ng:{name:{ru:'Newgrounds',en:'Newgrounds'},cls:'th-ng',c:['#ffb300','#2c2e33'],v:{bg:'#2b2d31',box:'#2a2c31',box2:'#34373d',line:'#0c0c0e',text:'#dcdcdc',org:'#ffb300',yel:'#ffc20e',red:'#e0302a',stripe:'#1c1e22',head1:'#ffb300',acc1:'#ffb300',acc2:'#e06c00',muted:'#9a9ca3',h2text:'#ffb300',navtext:'#000'}}
 };
 var THEME='sunset';
-function applyTheme(k){if(!THEMES[k])k='sunset';THEME=k;var sty=document.documentElement.style,v=THEMES[k].v;Object.keys(v).forEach(function(n){sty.setProperty('--'+n,v[n])});try{localStorage.setItem('theme',k)}catch(x){}renderThemes()}
+function applyTheme(k){if(!THEMES[k])k='sunset';THEME=k;var sty=document.documentElement.style,v=THEMES[k].v;
+ ['bg','box','box2','line','text','org','yel','red','stripe','head1','acc1','acc2','muted','h2text','navtext'].forEach(function(n){if(v[n])sty.setProperty('--'+n,v[n]);else sty.removeProperty('--'+n)});
+ document.body.className=THEMES[k].cls||'';
+ try{localStorage.setItem('theme',k)}catch(x){}renderThemes()}
 function renderThemes(){var el=document.getElementById('themes');if(!el)return;var t=THEMES[THEME];
  el.innerHTML="<div id='thsel'><button type='button' id='thbtn' aria-haspopup='listbox'><span class='thsw' style='background:linear-gradient(135deg,"+t.c[0]+","+t.c[1]+")'></span>"+t.name[L]+" ▾</button><div id='thlist'>"
   +Object.keys(THEMES).map(function(k){var x=THEMES[k];return "<div class='thopt"+(k===THEME?' on':'')+"' data-th='"+k+"'><span class='thsw' style='background:linear-gradient(135deg,"+x.c[0]+","+x.c[1]+")'></span>"+x.name[L]+"</div>"}).join('')
