@@ -259,7 +259,7 @@ body.th-bf .box{background:linear-gradient(#18235e,#101a48);border:2px solid #3b
 body.th-bf .box h2{background:linear-gradient(#3b5bd6,#18235e);color:#FFF383;border-bottom:2px solid #05081a;font-family:'Font5x7',sans-serif;font-size:14px;letter-spacing:0}
 body.th-bf .box h2:before{content:'';display:inline-block;width:8px;height:14px;margin-right:6px;vertical-align:middle;background:var(--sel) center/contain no-repeat;transform:scaleX(-1)}
 body.th-bf .news b,body.th-bf .cmi b,body.th-bf .forum-title{color:#FFF383}
-body.th-bf input:not([type=file]),body.th-bf textarea{background:#e9f6ff;color:#101a48;border:2px solid #05081a}
+body.th-bf input:not([type=file]),body.th-bf textarea{background:#101a48!important;color:#e9f6ff!important;border:2px solid #3b5bd6!important}
 body.th-bf #thbtn{background:var(--capsule) center/100% 100% no-repeat;border:0;color:#e9f6ff;padding:6px 16px 6px 14px;text-shadow:0 0 4px #3b5bd6}
 body.th-bf #thbtn .thsw{display:none}
 body.th-bf .thcar{display:inline-block;width:10px;height:14px;font-size:0;margin-left:6px;background:var(--sel) center/contain no-repeat;transform:rotate(-90deg)}
@@ -375,7 +375,7 @@ function cr(){document.getElementById('cr').innerHTML=C.map(function(c){return '
 var L='ru';
 
 function showVid(id) {
-  var url = VIDS[id];
+  var url = VIDS[id] || (/^[A-Za-z0-9_.\/-]+\.(mp4|webm|mov)$/i.test(id) && id.indexOf('..') < 0 ? id : null);
   if (!url) return;
   var lb = document.getElementById('lb');
   var img = lb.querySelector('img');
@@ -394,12 +394,12 @@ var VIDEO_ITEMS = [
 var materialsExpanded = false;
 var NEWS=['ns5','ns6','ns2','ns3','ns4'],NEWS_HOME=3,DBNEWS=[],DBMAT=[],MAT0=null;
 function newsBare(t){return t.replace(/(https:\/\/[^\s<]+)/g,"<a href='$1' target='_blank' rel='noopener'>$1</a>")}
-function newsLinkify(t){var out='',re=/\[([^\]]+)\]\((https:\/\/[^\s)]+|video:[A-Za-z0-9_]+)\)/g,i=0,m;
+function newsLinkify(t){var out='',re=/\[([^\]]+)\]\((https:\/\/[^\s)]+|video:[A-Za-z0-9_./-]+)\)/g,i=0,m;
  while((m=re.exec(t))){var u=m[2],a=u.indexOf('video:')===0?"<a href='#' onclick=\"showVid('"+u.slice(6)+"');return false\">":"<a href='"+u+"' target='_blank' rel='noopener'>";out+=newsBare(t.slice(i,m.index))+a+m[1]+"</a>";i=m.index+m[0].length}
  return out+newsBare(t.slice(i))}
-function newsDbItem(n){var en=L==='en',tt=(en&&n.title_en)||n.title,bd=(en&&n.body_en)||n.body;
+function newsDbItem(n){var en=L==='en',tt=(en&&n.title_en)||n.title,bd=(en&&n.body_en)||n.body,fresh=(Date.now()-new Date(n.created_at).getTime())<7*864e5;
  var body=newsBody(esc(bd));
- return '<div class="news dbnews"><b>'+esc(tt)+'</b>'+(isAdm()?' <a class="ndel" data-id="'+esc(n.id)+'">'+(L==='ru'?'удалить':'delete')+'</a>':'')+'<br><i>'+esc(forumWhen(n.created_at))+(n.author?' • '+esc(n.author):'')+'</i><div class="ntext">'+body+'</div></div>'}
+ return '<div class="news dbnews"><b>'+esc(tt)+'</b>'+(fresh?' <span class="new">NEW</span>':'')+(isAdm()?' <a class="ndel" data-id="'+esc(n.id)+'">'+(L==='ru'?'удалить':'delete')+'</a>':'')+'<br><i>'+esc(forumWhen(n.created_at))+(n.author?' • '+esc(n.author):'')+'</i><div class="ntext">'+body+'</div></div>'}
 function newsStatic(k){return '<div class="news">'+T[k][L]+'</div>'}
 function news(){var el=document.getElementById('newsl'),mb=document.getElementById('newsm'),al=document.getElementById('newsall');
  var items=DBNEWS.map(newsDbItem).concat(NEWS.map(newsStatic)),total=items.length;
@@ -1161,6 +1161,32 @@ var forumLoadToken = 0;
   chkAdm=function(){return Promise.resolve(_chk()).then(function(){news();matAdmRender()})};
   newsLoad();matLoad();
   route();
+})();
+</script>
+<script>
+(function(){
+ var KEY='kc-drafts',D={};
+ try{D=JSON.parse(sessionStorage.getItem(KEY)||'{}')||{}}catch(e){D={}}
+ function save(){try{sessionStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
+ function isField(el){return !!el&&!!el.id&&(el.tagName==='TEXTAREA'||(el.tagName==='INPUT'&&(el.type==='text'||el.type==='search')))}
+ function restore(root){
+   if(!root||!root.querySelectorAll)return;
+   var list=isField(root)?[root]:[];
+   root.querySelectorAll('textarea[id],input[id]').forEach(function(el){list.push(el)});
+   list.forEach(function(el){if(isField(el)&&el.value===''&&typeof D[el.id]==='string'&&D[el.id]!=='')el.value=D[el.id]});
+ }
+ document.addEventListener('input',function(e){var el=e.target;if(isField(el)){D[el.id]=el.value;save()}},true);
+ // when the code clears a field after sending, forget its draft
+ ['HTMLTextAreaElement','HTMLInputElement'].forEach(function(name){
+   var C=window[name];if(!C)return;
+   var d=Object.getOwnPropertyDescriptor(C.prototype,'value');if(!d||!d.set)return;
+   Object.defineProperty(C.prototype,'value',{configurable:true,enumerable:d.enumerable,get:d.get,set:function(v){
+     if(isField(this)&&v===''&&D[this.id]!==undefined){delete D[this.id];save()}
+     d.set.call(this,v)}});
+ });
+ new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===1)restore(n)})})})
+   .observe(document.body,{childList:true,subtree:true});
+ restore(document.body);
 })();
 </script>
 </body>
