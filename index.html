@@ -382,9 +382,9 @@ function newsBare(t){return t.replace(/(https:\/\/[^\s<]+)/g,"<a href='$1' targe
 function newsLinkify(t){var out='',re=/\[([^\]]+)\]\((https:\/\/[^\s)]+|video:[A-Za-z0-9_]+)\)/g,i=0,m;
  while((m=re.exec(t))){var u=m[2],a=u.indexOf('video:')===0?"<a href='#' onclick=\"showVid('"+u.slice(6)+"');return false\">":"<a href='"+u+"' target='_blank' rel='noopener'>";out+=newsBare(t.slice(i,m.index))+a+m[1]+"</a>";i=m.index+m[0].length}
  return out+newsBare(t.slice(i))}
-function newsDbItem(n){
- var body=newsBody(esc(n.body));
- return '<div class="news dbnews"><b>'+esc(n.title)+'</b>'+(isAdm()?' <a class="ndel" data-id="'+esc(n.id)+'">'+(L==='ru'?'удалить':'delete')+'</a>':'')+'<br><i>'+esc(forumWhen(n.created_at))+(n.author?' • '+esc(n.author):'')+'</i><div class="ntext">'+body+'</div></div>'}
+function newsDbItem(n){var en=L==='en',tt=(en&&n.title_en)||n.title,bd=(en&&n.body_en)||n.body;
+ var body=newsBody(esc(bd));
+ return '<div class="news dbnews"><b>'+esc(tt)+'</b>'+(isAdm()?' <a class="ndel" data-id="'+esc(n.id)+'">'+(L==='ru'?'удалить':'delete')+'</a>':'')+'<br><i>'+esc(forumWhen(n.created_at))+(n.author?' • '+esc(n.author):'')+'</i><div class="ntext">'+body+'</div></div>'}
 function newsStatic(k){return '<div class="news">'+T[k][L]+'</div>'}
 function news(){var el=document.getElementById('newsl'),mb=document.getElementById('newsm'),al=document.getElementById('newsall');
  var items=DBNEWS.map(newsDbItem).concat(NEWS.map(newsStatic)),total=items.length;
@@ -416,14 +416,20 @@ function newsMediaIns(){var m=document.getElementById('ntMsg'),ru=L==='ru',fi=do
  else if(rp){if(!mediaSafe(rp)){m.textContent=ru?'Путь: images/имя.png или videos/имя.mp4':'Path: images/name.png or videos/name.mp4';return}
   pr=Promise.resolve({u:rp,vid:isVidSrc(rp)})}
  else{m.textContent=ru?'Выбери файл или укажи путь.':'Choose a file or enter a path.';return}
- pr.then(function(x){insAt(document.getElementById('ntBody'),(x.vid?'!video[':'![')+cap+']('+x.u+')\n');m.textContent='';fi.value='';document.getElementById('ntRepo').value='';document.getElementById('ntCap').value=''})
+ pr.then(function(x){insAt(window.ntLast||document.getElementById('ntBody'),(x.vid?'!video[':'![')+cap+']('+x.u+')\n');m.textContent='';fi.value='';document.getElementById('ntRepo').value='';document.getElementById('ntCap').value=''})
   .catch(function(e){console.warn('media:',e);m.textContent=ru?'Не загрузилось. Проверь размер и права хранилища.':'Upload failed.'})}
+var NEWS_COLS='id,created_at,title,body,title_en,body_en,author';
 function newsAdmRender(){var el=document.getElementById('newsadm');if(!el)return;
  if(!isAdm()){el.innerHTML='';return}
  var ru=L==='ru';
- el.innerHTML='<div class="forum-form mform"><label for="ntTitle">'+(ru?'Заголовок':'Title')+'</label><input id="ntTitle" maxlength="200"><label for="ntBody">'+(ru?'Текст. Ссылка: [текст](https://адрес). Картинка: ![подпись](адрес). Видео: !video[подпись](адрес).':'Text. Link: [text](https://url). Image: ![caption](url). Video: !video[caption](url).')+'</label><textarea id="ntBody" maxlength="5000"></textarea>'
-  +'<label>'+(ru?'Медиа: файл с компьютера или путь из репозитория':'Media: file from computer or repo path')+'</label><input type="file" id="ntFile" accept="image/*,video/*"><input id="ntRepo" placeholder="images/name.png или videos/name.mp4"><input id="ntCap" maxlength="120" placeholder="'+(ru?'Подпись к медиа':'Media caption')+'">'
+ el.innerHTML='<div class="forum-form mform">'
+  +'<label for="ntTitle">'+(ru?'Заголовок (рус.)':'Title (RU)')+'</label><input id="ntTitle" maxlength="200">'
+  +'<label for="ntTitleEn">Title (EN, optional: if empty, the Russian one is shown)</label><input id="ntTitleEn" maxlength="200">'
+  +'<label for="ntBody">'+(ru?'Текст (рус.). Ссылка: [текст](https://адрес). Картинка: ![подпись](адрес). Видео: !video[подпись](адрес).':'Text (RU). Link: [text](https://url). Image: ![caption](url). Video: !video[caption](url).')+'</label><textarea id="ntBody" maxlength="5000"></textarea>'
+  +'<label for="ntBodyEn">Text (EN, optional: if empty, the Russian one is shown)</label><textarea id="ntBodyEn" maxlength="5000"></textarea>'
+  +'<label>'+(ru?'Медиа: файл с компьютера или путь из репозитория (вставится в поле текста, в котором стоит курсор)':'Media: file from computer or repo path (inserted into the text field you last clicked)')+'</label><input type="file" id="ntFile" accept="image/*,video/*"><input id="ntRepo" placeholder="images/name.png или videos/name.mp4"><input id="ntCap" maxlength="120" placeholder="'+(ru?'Подпись к медиа':'Media caption')+'">'
   +'<button class="mbtn" type="button" id="ntIns">'+(ru?'Вставить в текст':'Insert into text')+'</button><button class="mbtn" type="button" id="ntSend">'+(ru?'Опубликовать':'Publish')+'</button><div id="ntMsg" class="forum-error"></div></div>';
+ ['ntBody','ntBodyEn','ntTitle','ntTitleEn'].forEach(function(id){document.getElementById(id).addEventListener('focus',function(){window.ntLast=this})});
  document.getElementById('ntSend').onclick=newsPublish;document.getElementById('ntIns').onclick=newsMediaIns}
 function matLoad(){if(!sb)return;sb.from('materials').select('id,created_at,kind,src,title_ru,title_en').order('created_at',{ascending:false}).limit(200).then(function(r){if(r.error){console.warn('materials:',r.error.message);return}DBMAT=r.data||[];matApply()})}
 function matApply(){if(!MAT0)MAT0={S:SHOTS.slice(),V:VIDEO_ITEMS.slice()};var imgs=[],vids=[];
@@ -456,15 +462,18 @@ function matAdd(){var m=document.getElementById('matMsg'),ru=L==='ru',t=document
   .catch(function(e){console.warn('materials:',e);m.textContent=ru?'Не получилось добавить.':'Could not add.'})}
 function matDel(id){if(!sb||!isAdm()||!confirm(L==='ru'?'Удалить из материалов?':'Remove from materials?'))return;
  sb.from('materials').delete().eq('id',id).select().then(function(r){if(r.error||!r.data||!r.data.length){console.warn('materials delete failed');return}DBMAT=DBMAT.filter(function(x){return String(x.id)!==String(id)});matApply()})}
-function newsLoad(){if(!sb)return;sb.from('news').select('id,created_at,title,body,author').order('created_at',{ascending:false}).limit(50).then(function(r){if(r.error){console.warn('news:',r.error.message);return}DBNEWS=r.data||[];news()})}
-function newsPublish(){var t=document.getElementById('ntTitle'),b=document.getElementById('ntBody'),m=document.getElementById('ntMsg');
- var title=(t.value||'').trim(),body=(b.value||'').trim();
- if(!title||!body){m.textContent=L==='ru'?'Заполни заголовок и текст.':'Fill in the title and text.';return}
+function newsLoad(){if(!sb)return;sb.from('news').select(NEWS_COLS).order('created_at',{ascending:false}).limit(50).then(function(r){if(r.error){console.warn('news:',r.error.message);return}DBNEWS=r.data||[];news()})}
+function newsPublish(){var g=function(id){return (document.getElementById(id).value||'').trim()},m=document.getElementById('ntMsg');
+ var title=g('ntTitle'),body=g('ntBody'),titleEn=g('ntTitleEn'),bodyEn=g('ntBodyEn');
+ if(!title||!body){m.textContent=L==='ru'?'Заполни заголовок и текст (рус.).':'Fill in the Russian title and text.';return}
  if(!sb||!SES||!isAdm())return;
  m.textContent='';
- sb.from('news').insert({title:title.slice(0,200),body:body.slice(0,5000),author:forumCurrentAuthor().name,user_id:SES.user.id}).select('id,created_at,title,body,author').single().then(function(r){
-  if(r.error)throw r.error;
-  DBNEWS.unshift(r.data);t.value='';b.value='';news()
+ var row={title:title.slice(0,200),body:body.slice(0,5000),title_en:titleEn?titleEn.slice(0,200):null,body_en:bodyEn?bodyEn.slice(0,5000):null,author:forumCurrentAuthor().name,user_id:SES.user.id};
+ sb.from('news').insert(row).select(NEWS_COLS).single().then(function(r){
+   if(r.error)throw r.error;
+   DBNEWS.unshift(r.data);
+   ['ntTitle','ntTitleEn','ntBody','ntBodyEn'].forEach(function(id){document.getElementById(id).value=''});
+   news()
  }).catch(function(e){console.warn('news insert:',e);m.textContent=L==='ru'?'Не получилось опубликовать.':'Could not publish.'})}
 function newsDelete(id){if(!isAdm()||!confirm(L==='ru'?'Удалить новость?':'Delete this news item?'))return;
  sb.from('news').delete().eq('id',id).select().then(function(r){if(r.error||!r.data||!r.data.length){console.warn('news delete failed');return}
