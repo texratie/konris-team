@@ -383,9 +383,9 @@ body.th-fa #faorb{display:block}
 #faclk{color:#fff;font:600 13px 'Segoe UI',sans-serif;text-shadow:0 1px 2px rgba(0,30,70,.6);white-space:nowrap;margin-left:4px}
 #fastart{display:none}
 body.th-fa #fastart.on{display:flex}
-body.th-fa #fastart{position:fixed;left:6px;bottom:52px;z-index:90;width:360px;max-width:calc(100vw - 12px);border-radius:10px 10px 6px 6px;overflow:hidden;flex-direction:row;background:linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,0) 40%),rgba(10,50,100,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.7);box-shadow:0 10px 30px rgba(0,20,60,.5)}
+body.th-fa #fastart{position:fixed;left:6px;bottom:52px;z-index:90;width:260px;max-width:calc(100vw - 12px);border-radius:10px 10px 6px 6px;overflow:hidden;flex-direction:row;background:linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,0) 40%),rgba(10,50,100,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.7);box-shadow:0 10px 30px rgba(0,20,60,.5)}
 .fsl{flex:1;padding:8px;display:flex;flex-direction:column;gap:2px}
-.fsr{width:130px;padding:8px;display:flex;flex-direction:column;gap:6px;border-left:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08)}
+.fsr{display:none;width:130px;padding:8px;flex-direction:column;gap:6px;border-left:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08)}
 .fsi{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:6px;border:0;background:none;color:#fff;font:600 13px 'Segoe UI',Tahoma,sans-serif;text-decoration:none;text-shadow:0 1px 2px rgba(0,30,70,.6);cursor:pointer;box-sizing:border-box}
 .fsi:hover{background:linear-gradient(rgba(255,255,255,.45),rgba(255,255,255,.1) 50%),rgba(120,200,255,.35)}
 .fsi.on{box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
@@ -1410,13 +1410,11 @@ var forumLoadToken = 0;
   if(k===key)return;key=k;
   var tasks=document.getElementById('fatasks'),fl=document.getElementById('fastl'),fr=document.getElementById('fastr');
   tasks.innerHTML='';fl.innerHTML='';fr.innerHTML='';
-  links.forEach(function(a){
-   var on=a.getAttribute('href')===hash;
-   var t=document.createElement('button');t.type='button';t.className='fatb'+(on?' on':'');t.textContent=a.textContent;t.title=a.textContent;
-   t.onclick=function(){a.click()};tasks.appendChild(t);
-   var s=document.createElement('button');s.type='button';s.className='fsi'+(on?' on':'');s.textContent=a.textContent;
-   s.onclick=function(){a.click();fl.parentNode.classList.remove('on')};fl.appendChild(s)});
-  function item(txt,fn,cls){var b=document.createElement('button');b.type='button';b.className='fsi tiny'+(cls?' '+cls:'');b.textContent=txt;b.onclick=fn;fr.appendChild(b)}
+  // taskbar: only the current section; the header menu is the main navigation
+  var act=links.filter(function(a){return a.getAttribute('href')===hash})[0]||links[0];
+  if(act){var t=document.createElement('button');t.type='button';t.className='fatb on';t.textContent=act.textContent;t.title=act.textContent;
+   t.onclick=function(){window.scrollTo({top:0,behavior:'smooth'})};tasks.appendChild(t)}
+  function item(txt,fn,cls){var b=document.createElement('button');b.type='button';b.className='fsi tiny'+(cls?' '+cls:'');b.textContent=txt;b.onclick=fn;fl.appendChild(b)}
   item(ru()?'Наверх':'Top',function(){window.scrollTo({top:0,behavior:'smooth'})});
   item((ru()?'♪ Клики: ':'♪ Clicks: ')+(flag('kc-fa-sound')?(ru()?'вкл':'on'):(ru()?'выкл':'off')),toggleSound,flag('kc-fa-sound')?'on':'');
   item((ru()?'♫ Эмбиент: ':'♫ Ambient: ')+(flag('kc-fa-amb')?(ru()?'вкл':'on'):(ru()?'выкл':'off')),toggleAmb,flag('kc-fa-amb')?'on':'');
