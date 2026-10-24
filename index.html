@@ -275,6 +275,12 @@ body.th-bf #lang button.on{background:#3b5bd6;color:#fff;border-style:inset}
 @keyframes bfm{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.bft{animation:none}}
 .hrt::before{content:'♥'}.hrt.off::before{content:'♡'}
+.ni{display:block;max-width:100%;max-height:360px;margin:6px 0;border:2px solid var(--line);cursor:pointer}
+.nv{display:block;max-width:100%;max-height:360px;margin:6px 0;border:2px solid var(--line);background:#000}
+.mform input:not([type=file]),.mform textarea{display:block;width:100%;box-sizing:border-box;background:var(--bg);color:var(--text);border:2px inset #555;font:13px Verdana,Tahoma,Arial,sans-serif;padding:6px;margin:4px 0}
+.mform textarea{min-height:90px;resize:vertical}
+.mform label{display:block;margin-top:6px;color:var(--muted);font-size:12px}
+.mbtn{background:linear-gradient(var(--acc1),var(--acc2));color:#000;border:2px outset #ffd27a;font:bold 12px Verdana;padding:6px 12px;cursor:pointer;margin:4px 4px 4px 0}
 </style>
 </head>
 <body><div id="bfbg" aria-hidden="true"></div>
@@ -305,7 +311,7 @@ body.th-bf #lang button.on{background:#3b5bd6;color:#fff;border-style:inset}
 <div class="box" id="comments"><h2 data-t="cm"></h2><div class="in"><div id="cm"></div></div></div>
 </div>
 <div class="page" id="pg-materials" data-page="materials">
-<div class="box" id="videos"><h2 data-t="vid"></h2><div class="in"><p data-t="vidtxt" style="margin-top:0"></p><div id="vgal"></div></div></div>
+<div class="box" id="videos"><h2 data-t="vid"></h2><div class="in"><p data-t="vidtxt" style="margin-top:0"></p><div id="matadm"></div><div id="vgal"></div></div></div>
 </div>
 <div class="page" id="pg-forum" data-page="forum">
 <div class="box" id="forum"><h2 data-t="forumTitle"></h2><div class="in"><p data-t="forumIntro" style="margin-top:0"></p><div id="forumApp"></div></div></div>
@@ -371,13 +377,13 @@ var VIDEO_ITEMS = [
   {"id":"ugh","src":"videos/ugh_teaser.mp4","ru":"Тизер Ugh (Tankman Mix)","en":"Ugh (Tankman Mix) teaser","descRu":"Тизер Ugh с Танкменом.","descEn":"A teaser for Ugh featuring Tankman."}
 ];
 var materialsExpanded = false;
-var NEWS=['ns5','ns6','ns2','ns3','ns4'],NEWS_HOME=3,DBNEWS=[];
+var NEWS=['ns5','ns6','ns2','ns3','ns4'],NEWS_HOME=3,DBNEWS=[],DBMAT=[],MAT0=null;
 function newsBare(t){return t.replace(/(https:\/\/[^\s<]+)/g,"<a href='$1' target='_blank' rel='noopener'>$1</a>")}
 function newsLinkify(t){var out='',re=/\[([^\]]+)\]\((https:\/\/[^\s)]+|video:[A-Za-z0-9_]+)\)/g,i=0,m;
  while((m=re.exec(t))){var u=m[2],a=u.indexOf('video:')===0?"<a href='#' onclick=\"showVid('"+u.slice(6)+"');return false\">":"<a href='"+u+"' target='_blank' rel='noopener'>";out+=newsBare(t.slice(i,m.index))+a+m[1]+"</a>";i=m.index+m[0].length}
  return out+newsBare(t.slice(i))}
 function newsDbItem(n){
- var body=newsLinkify(esc(n.body));
+ var body=newsBody(esc(n.body));
  return '<div class="news dbnews"><b>'+esc(n.title)+'</b>'+(isAdm()?' <a class="ndel" data-id="'+esc(n.id)+'">'+(L==='ru'?'удалить':'delete')+'</a>':'')+'<br><i>'+esc(forumWhen(n.created_at))+(n.author?' • '+esc(n.author):'')+'</i><div class="ntext">'+body+'</div></div>'}
 function newsStatic(k){return '<div class="news">'+T[k][L]+'</div>'}
 function news(){var el=document.getElementById('newsl'),mb=document.getElementById('newsm'),al=document.getElementById('newsall');
@@ -390,10 +396,66 @@ function news(){var el=document.getElementById('newsl'),mb=document.getElementBy
  newsAdmRender();
  Array.prototype.forEach.call(document.querySelectorAll('.ndel'),function(a){a.onclick=function(e){e.preventDefault();newsDelete(a.getAttribute('data-id'))}});
 }
+function mediaSafe(u){return u.indexOf(SB_URL+'/storage/v1/object/public/'+BK+'/')===0||/^[A-Za-z0-9_\/-]+\.(png|jpe?g|gif|webp|mp4|webm|mov)$/i.test(u)}
+function isVidSrc(u){return /\.(mp4|webm|mov)(\?|$)/i.test(u)}
+function mediaUpload(f){var ext=(f.name.split('.').pop()||'bin').replace(/[^a-z0-9]/gi,'').slice(0,8)||'bin',path=SES.user.id+'/media-'+Date.now()+'.'+ext;return sb.storage.from(BK).upload(path,f,{contentType:f.type||'application/octet-stream'}).then(function(r){if(r.error)throw r.error;return sb.storage.from(BK).getPublicUrl(path).data.publicUrl})}
+function insAt(el,txt){var s=el.selectionStart,e=el.selectionEnd;if(s==null){s=e=el.value.length}el.value=el.value.slice(0,s)+txt+el.value.slice(e);el.focus();el.selectionStart=el.selectionEnd=s+txt.length}
+function openImg(src){var lb=document.getElementById('lb');lb.querySelector('img').src=src;lb.querySelector('img').style.display='';lb.querySelector('p').innerHTML='';lb.style.display='flex'}
+function newsBody(t){var out='',re=/!(video)?\[([^\]]*)\]\(([^)\s]+)\)/g,i=0,m;
+ while((m=re.exec(t))){out+=newsLinkify(t.slice(i,m.index));var u=m[3];
+  if(mediaSafe(u)){out+=m[1]?'<video class="nv" src="'+u+'" controls preload="metadata" playsinline></video>':'<img class="ni" src="'+u+'" alt="'+m[2]+'" onclick="openImg(this.src)">'}
+  else out+=m[0];
+  i=m.index+m[0].length}
+ return out+newsLinkify(t.slice(i))}
+function newsMediaIns(){var m=document.getElementById('ntMsg'),ru=L==='ru',fi=document.getElementById('ntFile'),f=fi.files[0],rp=(document.getElementById('ntRepo').value||'').trim(),cap=(document.getElementById('ntCap').value||'').trim().replace(/[\[\]()!]/g,'')||(ru?'медиа':'media');
+ if(!sb||!SES||!isAdm())return;
+ var pr;
+ if(f){if(f.size>50*1024*1024){m.textContent=ru?'Файл больше 50 МБ.':'File over 50 MB.';return}
+  var vid=/^video\//.test(f.type)||isVidSrc(f.name);m.textContent=ru?'Загружаю…':'Uploading…';
+  pr=mediaUpload(f).then(function(u){return {u:u,vid:vid}})}
+ else if(rp){if(!mediaSafe(rp)){m.textContent=ru?'Путь: images/имя.png или videos/имя.mp4':'Path: images/name.png or videos/name.mp4';return}
+  pr=Promise.resolve({u:rp,vid:isVidSrc(rp)})}
+ else{m.textContent=ru?'Выбери файл или укажи путь.':'Choose a file or enter a path.';return}
+ pr.then(function(x){insAt(document.getElementById('ntBody'),(x.vid?'!video[':'![')+cap+']('+x.u+')\n');m.textContent='';fi.value='';document.getElementById('ntRepo').value='';document.getElementById('ntCap').value=''})
+  .catch(function(e){console.warn('media:',e);m.textContent=ru?'Не загрузилось. Проверь размер и права хранилища.':'Upload failed.'})}
 function newsAdmRender(){var el=document.getElementById('newsadm');if(!el)return;
  if(!isAdm()){el.innerHTML='';return}
- el.innerHTML='<div class="forum-form"><label for="ntTitle">'+(L==='ru'?'Заголовок':'Title')+'</label><input id="ntTitle" maxlength="200"><label for="ntBody">'+(L==='ru'?'Текст. Ссылка с своим текстом: [смотреть видео](https://адрес). Голый адрес тоже станет ссылкой.':'Text. Link with custom text: [watch video](https://url). A bare URL also becomes a link.')+'</label><textarea id="ntBody" maxlength="5000"></textarea><button class="forum-action" type="button" id="ntSend">'+(L==='ru'?'Опубликовать':'Publish')+'</button><div id="ntMsg" class="forum-error"></div></div>';
- document.getElementById('ntSend').onclick=newsPublish}
+ var ru=L==='ru';
+ el.innerHTML='<div class="forum-form mform"><label for="ntTitle">'+(ru?'Заголовок':'Title')+'</label><input id="ntTitle" maxlength="200"><label for="ntBody">'+(ru?'Текст. Ссылка: [текст](https://адрес). Картинка: ![подпись](адрес). Видео: !video[подпись](адрес).':'Text. Link: [text](https://url). Image: ![caption](url). Video: !video[caption](url).')+'</label><textarea id="ntBody" maxlength="5000"></textarea>'
+  +'<label>'+(ru?'Медиа: файл с компьютера или путь из репозитория':'Media: file from computer or repo path')+'</label><input type="file" id="ntFile" accept="image/*,video/*"><input id="ntRepo" placeholder="images/name.png или videos/name.mp4"><input id="ntCap" maxlength="120" placeholder="'+(ru?'Подпись к медиа':'Media caption')+'">'
+  +'<button class="mbtn" type="button" id="ntIns">'+(ru?'Вставить в текст':'Insert into text')+'</button><button class="mbtn" type="button" id="ntSend">'+(ru?'Опубликовать':'Publish')+'</button><div id="ntMsg" class="forum-error"></div></div>';
+ document.getElementById('ntSend').onclick=newsPublish;document.getElementById('ntIns').onclick=newsMediaIns}
+function matLoad(){if(!sb)return;sb.from('materials').select('id,created_at,kind,src,title_ru,title_en').order('created_at',{ascending:false}).limit(200).then(function(r){if(r.error){console.warn('materials:',r.error.message);return}DBMAT=r.data||[];matApply()})}
+function matApply(){if(!MAT0)MAT0={S:SHOTS.slice(),V:VIDEO_ITEMS.slice()};var imgs=[],vids=[];
+ DBMAT.forEach(function(m){if(!mediaSafe(m.src))return;var ru=esc(m.title_ru),en=esc(m.title_en||m.title_ru);
+  if(m.kind==='video'){var id='db'+m.id;VIDS[id]=m.src;vids.push({id:id,src:m.src,ru:ru,en:en,descRu:'',descEn:''})}
+  else imgs.push({src:m.src,ru:ru,en:en})});
+ SHOTS=MAT0.S.concat(imgs);VIDEO_ITEMS=MAT0.V.concat(vids);gal();vgal();matAdmRender()}
+function matAdmRender(){var el=document.getElementById('matadm');if(!el)return;
+ if(!isAdm()){el.innerHTML='';return}
+ var ru=L==='ru';
+ var list=(DBMAT||[]).map(function(m){return '<div class="news">'+(m.kind==='video'?'🎬 ':'🖼 ')+esc(m.title_ru)+' <a class="ndel" onclick="matDel('+Number(m.id)+')">'+(ru?'удалить':'delete')+'</a></div>'}).join('');
+ el.innerHTML='<div class="forum-form mform"><b>'+(ru?'Добавить в материалы':'Add to materials')+'</b>'
+  +'<label>'+(ru?'Название (рус.)':'Title (RU)')+'</label><input id="matRu" maxlength="120">'
+  +'<label>'+(ru?'Название (англ., необязательно)':'Title (EN, optional)')+'</label><input id="matEn" maxlength="120">'
+  +'<label>'+(ru?'Файл с компьютера или путь из репозитория (images/имя.png, videos/имя.mp4)':'File from computer or repo path (images/name.png, videos/name.mp4)')+'</label><input type="file" id="matFile" accept="image/*,video/*"><input id="matRepo" placeholder="videos/name.mp4">'
+  +'<button class="mbtn" type="button" onclick="matAdd()">'+(ru?'Добавить':'Add')+'</button><div id="matMsg" class="forum-error"></div>'
+  +(list?'<div style="margin-top:8px">'+list+'</div>':'')+'</div>'}
+function matAdd(){var m=document.getElementById('matMsg'),ru=L==='ru',t=document.getElementById('matRu'),en=document.getElementById('matEn'),fi=document.getElementById('matFile'),rp=(document.getElementById('matRepo').value||'').trim(),title=(t.value||'').trim();
+ if(!sb||!SES||!isAdm())return;
+ if(!title){m.textContent=ru?'Напиши название.':'Enter a title.';return}
+ var f=fi.files[0],pr;
+ if(f){if(f.size>50*1024*1024){m.textContent=ru?'Файл больше 50 МБ.':'File over 50 MB.';return}
+  var vid=/^video\//.test(f.type)||isVidSrc(f.name);m.textContent=ru?'Загружаю…':'Uploading…';
+  pr=mediaUpload(f).then(function(u){return {u:u,vid:vid}})}
+ else if(rp){if(!mediaSafe(rp)){m.textContent=ru?'Путь: images/имя.png или videos/имя.mp4':'Path: images/name.png or videos/name.mp4';return}
+  pr=Promise.resolve({u:rp,vid:isVidSrc(rp)})}
+ else{m.textContent=ru?'Выбери файл или укажи путь.':'Choose a file or enter a path.';return}
+ pr.then(function(x){return sb.from('materials').insert({kind:x.vid?'video':'image',src:x.u,title_ru:title.slice(0,120),title_en:((en.value||'').trim()||title).slice(0,120),user_id:SES.user.id}).select('id,created_at,kind,src,title_ru,title_en').single()})
+  .then(function(r){if(r.error)throw r.error;DBMAT.unshift(r.data);t.value='';en.value='';fi.value='';document.getElementById('matRepo').value='';matApply()})
+  .catch(function(e){console.warn('materials:',e);m.textContent=ru?'Не получилось добавить.':'Could not add.'})}
+function matDel(id){if(!sb||!isAdm()||!confirm(L==='ru'?'Удалить из материалов?':'Remove from materials?'))return;
+ sb.from('materials').delete().eq('id',id).select().then(function(r){if(r.error||!r.data||!r.data.length){console.warn('materials delete failed');return}DBMAT=DBMAT.filter(function(x){return String(x.id)!==String(id)});matApply()})}
 function newsLoad(){if(!sb)return;sb.from('news').select('id,created_at,title,body,author').order('created_at',{ascending:false}).limit(50).then(function(r){if(r.error){console.warn('news:',r.error.message);return}DBNEWS=r.data||[];news()})}
 function newsPublish(){var t=document.getElementById('ntTitle'),b=document.getElementById('ntBody'),m=document.getElementById('ntMsg');
  var title=(t.value||'').trim(),body=(b.value||'').trim();
@@ -436,7 +498,7 @@ document.getElementById('gal').onclick=function(e){var f=e.target.closest('.sh:n
 function setL(l){L=l;document.documentElement.lang=l;
 document.querySelectorAll('[data-t]').forEach(function(e){e.innerHTML=T[e.dataset.t][l]});
 document.querySelectorAll('#lang button').forEach(function(b){b.className=b.dataset.l==l?'on':''});
-gal();cr();vgal();news();renderThemes();if(window.cmL)cmL();if(window.dmBadge)dmBadge();if(window.forumRender)forumRender();try{localStorage.setItem('lang',l)}catch(x){}}
+gal();cr();vgal();news();matAdmRender();renderThemes();if(window.cmL)cmL();if(window.dmBadge)dmBadge();if(window.forumRender)forumRender();try{localStorage.setItem('lang',l)}catch(x){}}
 document.getElementById('lang').onclick=function(e){if(e.target.dataset.l)setL(e.target.dataset.l)};
 var THEMES={
  sunset:{name:{ru:'Закат',en:'Sunset'},c:['#ff9900','#c8102e'],v:{bg:'#1a0710',box:'#2a0d1c',box2:'#3a1328',line:'#7a2a4e',text:'#f0d8e4',org:'#ff9900',yel:'#ffe14d',red:'#c8102e',stripe:'#3a0d22',head1:'#8a2a5a',acc1:'#ffb43a',acc2:'#e07800',muted:'#c98aa8'}},
@@ -1072,8 +1134,8 @@ var forumLoadToken = 0;
      html+="<div class='bfr' style='top:"+top+"%'><div class='bft"+(r.sp<0?' rev':'')+"' style='color:"+r.c+";"+"animation-duration:"+Math.round(120/Math.abs(r.sp))+"s'>"+seg+seg+"</div></div>"}
    el.innerHTML=html})();
   var _chk=chkAdm;
-  chkAdm=function(){return Promise.resolve(_chk()).then(function(){news()})};
-  newsLoad();
+  chkAdm=function(){return Promise.resolve(_chk()).then(function(){news();matAdmRender()})};
+  newsLoad();matLoad();
   route();
 })();
 </script>
