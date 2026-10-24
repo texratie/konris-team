@@ -291,7 +291,7 @@ var VIDEO_ITEMS = [
   {"id":"ugh","src":"videos/ugh_teaser.mp4","ru":"Тизер Ugh (Tankman Mix)","en":"Ugh (Tankman Mix) teaser","descRu":"Тизер Ugh с Танкменом.","descEn":"A teaser for Ugh featuring Tankman."}
 ];
 var materialsExpanded = false;
-var NEWS=['ns1','ns2','ns3','ns4','ns5','ns6'],NEWS_HOME=3;
+var NEWS=['ns5','ns6','ns2','ns3','ns4'],NEWS_HOME=3;
 function newsItem(k){return '<div class="news">'+T[k][L]+'</div>'}
 function news(){var el=document.getElementById('newsl'),mb=document.getElementById('newsm'),al=document.getElementById('newsall');
  if(el){el.innerHTML=NEWS.slice(0,NEWS_HOME).map(newsItem).join('');
