@@ -578,6 +578,16 @@ function forumRender(){
         +"</article>";
     }).join('')
     :"<p>"+esc(forumT('forumNoReplies'))+"</p>";
+  if(isGh()){
+   h+="<div class='forum-form' id='forumReplyBox'><label for='forumReplyText'>"+esc(forumT('forumReply'))+"</label>"
+     +"<textarea id='forumReplyText' maxlength='5000' placeholder='"+esc(forumT('forumReplyPlaceholder'))+"'></textarea>"
+     +"<input type='file' id='forumFileInput' multiple hidden><div class='forum-file-list' id='forumFileList'>"+forumAttachmentMarkup()+"</div>"
+     +forumButton(L==='ru'?'📎 Прикрепить':'📎 Attach','attach',"id='forumAttach'")+" "
+     +(KLIPY_KEY?forumButton('GIF','gif',"id='forumGifButton'")+" ":'')
+     +"<br>"+forumButton(forumT('forumReply'),'reply')+"</div>";
+  }else{
+   h+="<p>"+esc(forumT('forumSignIn'))+"</p>"+forumButton(forumT('forumSignIn'),'login');
+  }
 }else{
   if(isGh())h+=forumButton(forumT('forumCreate'),'new');
   else h+=forumButton(forumT('forumSignIn'),'login');
@@ -598,7 +608,7 @@ function forumRender(){
  var b=el.querySelector('[data-faction=new]');
  if(b)b.onclick=function(){if(!isGh())return forumRender();forumFiles=[];forumGif='';el.insertAdjacentHTML('afterbegin',"<div class='forum-form' id='forumNew'><label for='forumNewTitle'>"+esc(forumT('forumTopicTitle'))+"</label><input id='forumNewTitle' maxlength='100' required><label for='forumNewBody'>"+esc(forumT('forumTopicBody'))+"</label><textarea id='forumNewBody' maxlength='5000' required></textarea><input type='file' id='forumFileInput' multiple hidden><div class='forum-file-list' id='forumFileList'></div>"+forumButton(L==='ru'?'📎 Прикрепить':'📎 Attach','attach',"id='forumAttach'")+" "+(KLIPY_KEY?forumButton('GIF','gif',"id='forumGifButton'"):'')+"<br>"+forumButton(forumT('forumSend'),'create')+" "+forumButton(L==='ru'?'Отмена':'Cancel','cancel')+"<div id='forumNewError' class='forum-error'></div></div>");forumWireComposer();var nb=document.querySelector('#forumNew [data-faction=create]');if(nb)nb.onclick=forumCreateTopic;var cb=document.querySelector('#forumNew [data-faction=cancel]');if(cb)cb.onclick=function(){forumFiles=[];forumGif='';forumRender()};var title=document.getElementById('forumNewTitle');if(title)title.focus();};
  b=el.querySelector('[data-faction=login]');if(b)b.onclick=function(){sb.auth.signInWithOAuth({provider:'github',options:{redirectTo:location.href.split('#')[0]+'#forum'}})};
- b=el.querySelector('[data-faction=back]');if(b)b.onclick=function(){forumCurrent=null;forumRender()};
+ b=el.querySelector('[data-faction=back]');if(b)b.onclick=function(){forumCurrent=null;forumFiles=[];forumGif='';forumRender()};
  Array.prototype.forEach.call(el.querySelectorAll('[data-topic]'),function(x){x.onclick=function(){forumOpenTopic(x.getAttribute('data-topic'))}});
  Array.prototype.forEach.call(el.querySelectorAll('[data-faction=create]'),function(x){x.onclick=forumCreateTopic});
  Array.prototype.forEach.call(el.querySelectorAll('[data-faction=cancel]'),function(x){x.onclick=forumRender});
@@ -666,7 +676,7 @@ function forumLoad(){
   });
 }
 function forumLoadProfiles(){forumLoadExtras();var ids={};forumTopics.forEach(function(t){if(t.user_id)ids[t.user_id]=1;(t.posts||[]).forEach(function(p){if(p.user_id)ids[p.user_id]=1})});var a=Object.keys(ids);if(!a.length||!sb)return;Promise.all([sb.from('profiles').select('*').in('user_id',a),sb.from('comments').select('user_id,name,avatar_url,created_at').in('user_id',a).order('created_at',{ascending:false})]).then(function(rs){if(!rs[0].error)(rs[0].data||[]).forEach(function(p){PF[p.user_id]=p});var cm={};if(!rs[1].error)(rs[1].data||[]).forEach(function(c){if(c.user_id&&!cm[c.user_id])cm[c.user_id]=c});forumTopics.forEach(function(t){[t].concat(t.posts||[]).forEach(function(x){var c=cm[x.user_id];if(c){if(!x.name)x.name=c.name;if(!x.avatar_url)x.avatar_url=c.avatar_url}})});forumRender()}).catch(function(e){console.warn('forum profiles:',e)})}
-function forumOpenTopic(id){forumCurrent=String(id);forumRender()}
+function forumOpenTopic(id){forumCurrent=String(id);forumFiles=[];forumGif='';forumRender()}
 function forumCreateTopic(){
  if(forumBusy||!isGh())return;
  var title=document.getElementById('forumNewTitle'),body=document.getElementById('forumNewBody'),err=document.getElementById('forumNewError');
