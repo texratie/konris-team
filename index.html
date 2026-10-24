@@ -269,8 +269,8 @@ body.th-bf .hrt::before{content:none}
 body.th-bf .hrt.off{opacity:.45;filter:grayscale(1)}
 body.th-bf #lang button{font-family:'Font5x7',sans-serif;font-size:14px;background:#101a48;color:#FFF383;border:2px outset #3b5bd6;padding:3px 9px}
 body.th-bf #lang button.on{background:#3b5bd6;color:#fff;border-style:inset}
-.bfr{position:absolute;left:0;right:0;height:56px;overflow:hidden;opacity:.92}
-.bft{display:inline-block;white-space:nowrap;font:56px/56px 'Font5x7',sans-serif;letter-spacing:4px;animation:bfm 30s linear infinite;text-shadow:2px 0 #101a48,-2px 0 #101a48,0 2px #101a48,0 -2px #101a48}
+.bfr{position:absolute;left:0;right:0;height:56px;overflow:hidden;opacity:.92;display:flex;align-items:center;line-height:56px}
+.bft{display:block;flex:none;width:max-content;white-space:nowrap;font:56px/56px 'Font5x7',sans-serif;letter-spacing:4px;animation:bfm 30s linear infinite;will-change:transform;text-shadow:2px 0 #101a48,-2px 0 #101a48,0 2px #101a48,0 -2px #101a48}
 .bft.rev{animation-direction:reverse}
 @keyframes bfm{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (prefers-reduced-motion:reduce){.bft{animation:none}}
@@ -373,8 +373,8 @@ var VIDEO_ITEMS = [
 var materialsExpanded = false;
 var NEWS=['ns5','ns6','ns2','ns3','ns4'],NEWS_HOME=3,DBNEWS=[];
 function newsBare(t){return t.replace(/(https:\/\/[^\s<]+)/g,"<a href='$1' target='_blank' rel='noopener'>$1</a>")}
-function newsLinkify(t){var out='',re=/\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g,i=0,m;
- while((m=re.exec(t))){out+=newsBare(t.slice(i,m.index))+"<a href='"+m[2]+"' target='_blank' rel='noopener'>"+m[1]+"</a>";i=m.index+m[0].length}
+function newsLinkify(t){var out='',re=/\[([^\]]+)\]\((https:\/\/[^\s)]+|video:[A-Za-z0-9_]+)\)/g,i=0,m;
+ while((m=re.exec(t))){var u=m[2],a=u.indexOf('video:')===0?"<a href='#' onclick=\"showVid('"+u.slice(6)+"');return false\">":"<a href='"+u+"' target='_blank' rel='noopener'>";out+=newsBare(t.slice(i,m.index))+a+m[1]+"</a>";i=m.index+m[0].length}
  return out+newsBare(t.slice(i))}
 function newsDbItem(n){
  var body=newsLinkify(esc(n.body));
