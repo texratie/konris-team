@@ -1623,7 +1623,7 @@ window.modPfEdit=function(){
   "<div id='mdpick'><label>"+T('Кому можно писать (поиск по имени)','Who may write (search by name)')+"</label><input type='text' id='mdq' maxlength='30' placeholder='"+T('Имя на сайте','Site name')+"'><div class='mdlist' id='mdlist'></div></div>"+
   "<label>"+T('Заблокированные','Blocked')+"</label><div class='mdlist' id='mdblk'></div>"+
   "<p class='cmsg' id='mdm'></p><button class='cmb' type='button' id='mdsave'>"+T('Сохранить приватность','Save privacy')+"</button>";
- pb.insertBefore(box,pm);
+ pm.parentNode.insertBefore(box,pm);
  MOD.sel=Object.assign({},MOD.allow);
  document.getElementById('mdhide').checked=!!MOD.set.hide_presence;
  var pol=document.getElementById('mdpol');pol.value=MOD.set.dm_policy||'all';
