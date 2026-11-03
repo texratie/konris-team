@@ -662,7 +662,7 @@ fnfAn:{ru:'Установка на Android',en:'Installing on Android'},
 fnfAnTxt:{ru:'<ol><li>Открой FNF Mobile → <b>Настройки</b> → <b>Open Data Folder</b>, чтобы открыть папку данных игры.</li><li>Скачай zip-архив мода. Распакуй его архиватором, выбери внутреннюю папку мода и нажми «Извлечь в…».</li><li>Перенеси распакованные файлы в папку, которую показала игра. Обычно это <code>Android/data/me.funkin.fnf/files/mods/</code>.</li></ol>',en:'<ol><li>Open FNF Mobile → <b>Options</b> → <b>Open Data Folder</b>.</li><li>Download the mod’s zip, unpack it with a file manager app, select the mod’s inner folder and choose “Extract to…”.</li><li>Move the extracted files into the folder the game opened. Usually <code>Android/data/me.funkin.fnf/files/mods/</code>.</li></ol>'},
 fnfIo:{ru:'Установка на iPhone (iOS)',en:'Installing on iPhone (iOS)'},
 fnfIoTxt:{ru:'<ol><li>Открой приложение «Файлы», зайди в «Загрузки» и нажми на скачанный zip-архив. Он распакуется в обычную папку.</li><li>В «Файлах» открой «На моём iPhone» и найди папку Friday Night Funkin’.</li><li>Открой в ней подпапку <b>Mods</b>. Зажми распакованную папку мода, выбери «Копировать» или «Переместить», зайди в <b>Mods</b> и нажми «Вставить».</li></ol>',en:'<ol><li>Open the Files app, go to Downloads and tap the zip. It unpacks into a regular folder.</li><li>In Files, open “On My iPhone” and find the Friday Night Funkin’ folder.</li><li>Open its <b>Mods</b> subfolder. Long-press the unpacked mod folder, choose “Copy” or “Move”, go back into <b>Mods</b> and tap “Paste”.</li></ol>'},
-foot:{ru:'© 2026 Konri’s Team • Friday Night Funkin’ принадлежит The Funkin\' Crew Inc., мод — неофициальный фанатский проект.',en:'© 2026 Konri’s Team • Friday Night Funkin’ belongs to The Funkin\' Crew Inc.; this mod is an unofficial fan project.'}
+foot:{ru:'© 2026 Konri’s Team • Friday Night Funkin’ принадлежит The Funkin\' Crew Inc., мод — неофициальный фанатский проект.<br><a href="legal.html#policy">Политика конфиденциальности</a> • <a href="legal.html#consent">Согласие</a> • <a href="legal.html#rules">Правила</a> • 16+ • <a href="mailto:ВАШ_EMAIL">ВАШ_EMAIL</a>',en:'© 2026 Konri’s Team • Friday Night Funkin’ belongs to The Funkin\' Crew Inc.; this mod is an unofficial fan project.<br><a href="legal.html#policy">Privacy policy</a> • <a href="legal.html#consent">Consent</a> • <a href="legal.html#rules">Rules</a> (in Russian) • 16+ • <a href="mailto:ВАШ_EMAIL">ВАШ_EMAIL</a>'}
 };
 var VIDS = {
   ugh: "videos/ugh_teaser.mp4", 
@@ -908,6 +908,101 @@ try{st=localStorage.getItem('lang')}catch(x){}
 setL(st||((navigator.language||'').slice(0,2)=='ru'?'ru':'en'));
 </script>
 <script>try{fetch('https://texrat.goatcounter.com/counter/TOTAL.json').then(function(r){return r.json()}).then(function(d){var n=String(d.count).replace(/\D/g,'');if(n)document.getElementById('hit').textContent=('000000'+n).slice(-Math.max(6,n.length))}).catch(function(){})}catch(e){}</script>
+<script>
+/* ===== consent gate (152-FZ) + account deletion ===== */
+(function(){
+var K='consent_v1',mem=false;
+function got(){try{if(localStorage.getItem(K)==='1')return true}catch(e){}return mem}
+function en(){return typeof L!=='undefined'&&L==='en'}
+var BOX='max-width:460px;width:100%;background:#1b1826;color:#eee;border:2px solid #ffb347;border-radius:10px;padding:18px;font:15px/1.5 system-ui,Arial,sans-serif;box-shadow:0 8px 40px #000a';
+var OV='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.7)';
+function show(ok,no){
+ var old=document.getElementById('cns');if(old)old.remove();
+ var ru=!en(),d=document.createElement('div');d.id='cns';
+ d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
+ d.style.cssText=OV+';z-index:99999';
+ d.innerHTML='<div style="'+BOX+'">'
+  +'<b style="font-size:17px;display:block;margin-bottom:8px">'+(ru?'Согласие на обработку данных':'Data processing consent')+'</b>'
+  +'<p style="margin:0 0 10px">'+(ru
+   ?'Чтобы войти, комментировать и писать сообщения, нужно ваше согласие на обработку персональных данных. Данные хранятся в сервисе Supabase на серверах за пределами РФ.'
+   :'To sign in, comment and send messages we need your consent to process personal data. Data is stored in Supabase on servers outside Russia.')+'</p>'
+  +'<label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin-bottom:12px"><input type="checkbox" id="cnsc" style="margin-top:3px;width:18px;height:18px;flex:none">'
+  +'<span>'+(ru
+   ?'Я согласен на обработку персональных данных, в том числе на их передачу за пределы РФ, и ознакомился с <a href="legal.html#consent" target="_blank" rel="noopener" style="color:#ffb347">текстом согласия</a>, <a href="legal.html#policy" target="_blank" rel="noopener" style="color:#ffb347">Политикой</a> и <a href="legal.html#rules" target="_blank" rel="noopener" style="color:#ffb347">Правилами</a>.'
+   :'I agree to the processing of my personal data, including transfer outside Russia, and have read the <a href="legal.html#consent" target="_blank" rel="noopener" style="color:#ffb347">consent text</a>, <a href="legal.html#policy" target="_blank" rel="noopener" style="color:#ffb347">Policy</a> and <a href="legal.html#rules" target="_blank" rel="noopener" style="color:#ffb347">Rules</a> (in Russian).')+'</span></label>'
+  +'<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" id="cnsn" style="padding:8px 14px;cursor:pointer">'+(ru?'Отмена':'Cancel')+'</button>'
+  +'<button type="button" id="cnsy" disabled style="padding:8px 14px;cursor:pointer;font-weight:bold">'+(ru?'Продолжить':'Continue')+'</button></div></div>';
+ document.body.appendChild(d);
+ var c=document.getElementById('cnsc'),y=document.getElementById('cnsy'),n=document.getElementById('cnsn');
+ c.onchange=function(){y.disabled=!c.checked;y.style.opacity=c.checked?'1':'.5'};y.style.opacity='.5';
+ function close(){d.remove()}
+ y.onclick=function(){if(!c.checked)return;mem=true;try{localStorage.setItem(K,'1')}catch(e){}close();ok()};
+ n.onclick=function(){close();if(no)no()};
+ d.onclick=function(e){if(e.target===d){close();if(no)no()}};
+}
+window.needConsent=function(ok,no){if(got()){ok();return}show(ok,no)};
+window.consentP=function(){return new Promise(function(res,rej){window.needConsent(res,function(){rej(new Error('consent_declined'))})})};
+
+/* ---- delete account ---- */
+function rmFiles(uid){
+ var B=sb.storage.from(BK),bad=false,iter=0;
+ function page(){
+  if(++iter>30){bad=true;return Promise.resolve()}
+  return B.list(uid,{limit:100}).then(function(r){
+   if(r.error){bad=true;return}
+   var names=(r.data||[]).filter(function(x){return x&&x.name&&x.id}).map(function(x){return uid+'/'+x.name});
+   if(!names.length)return;
+   return B.remove(names).then(function(x){if(x.error){bad=true;return}if(names.length>=100)return page()});
+  });
+ }
+ return page().catch(function(){bad=true}).then(function(){return bad});
+}
+window.pfDelAcc=function(){
+ if(typeof sb==='undefined'||!sb||!SES||!isGh())return;
+ var ru=!en(),word=ru?'УДАЛИТЬ':'DELETE',busy=false;
+ var old=document.getElementById('dlg');if(old)old.remove();
+ var d=document.createElement('div');d.id='dlg';
+ d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');
+ d.style.cssText=OV+';z-index:100000';
+ d.innerHTML='<div style="'+BOX.replace('#ffb347','#ff6b6b')+'">'
+  +'<b style="font-size:17px;display:block;margin-bottom:8px;color:#ff8a8a">'+(ru?'Удалить аккаунт?':'Delete account?')+'</b>'
+  +'<p style="margin:0 0 8px">'+(ru
+    ?'Будут безвозвратно удалены: профиль, комментарии, темы и ответы на форуме, личные сообщения, записи на стене, друзья и пары, игровая статистика, лайки, уведомления и загруженные вами файлы.'
+    :'This permanently deletes your profile, comments, forum topics and replies, private messages, wall posts, friends and couples, game stats, likes, notifications and the files you uploaded.')+'</p>'
+  +'<p style="margin:0 0 10px"><b>'+(ru?'Отменить это нельзя.':'This cannot be undone.')+'</b> '+(ru?'Чтобы продолжить, введите слово':'To continue, type')+' <b>'+word+'</b>:</p>'
+  +'<input id="dlgw" type="text" autocomplete="off" style="width:100%;box-sizing:border-box;padding:8px;margin-bottom:8px;font-size:16px">'
+  +'<div id="dlgm" role="status" style="min-height:1.4em;margin-bottom:8px;font-size:14px"></div>'
+  +'<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" id="dlgn" style="padding:8px 14px;cursor:pointer">'+(ru?'Отмена':'Cancel')+'</button>'
+  +'<button type="button" id="dlgy" disabled style="padding:8px 14px;cursor:pointer;font-weight:bold;color:#fff;background:#b3261e;border:0;opacity:.5">'+(ru?'Удалить навсегда':'Delete forever')+'</button></div></div>';
+ document.body.appendChild(d);
+ var w=document.getElementById('dlgw'),y=document.getElementById('dlgy'),n=document.getElementById('dlgn'),m=document.getElementById('dlgm');
+ w.oninput=function(){var ok=w.value.trim().toUpperCase()===word;y.disabled=!ok;y.style.opacity=ok?'1':'.5'};
+ n.onclick=function(){if(!busy)d.remove()};
+ y.onclick=function(){
+  if(busy||y.disabled)return;busy=true;y.disabled=true;n.disabled=true;w.disabled=true;
+  m.textContent=ru?'Удаляем…':'Deleting…';
+  var uid=SES.user.id;
+  rmFiles(uid).then(function(bad){
+   return sb.rpc('delete_my_account').then(function(r){
+    if(r.error)throw r.error;
+    try{localStorage.removeItem('kcid');localStorage.removeItem('ktback')}catch(e){}
+    return Promise.resolve(sb.auth.signOut()).catch(function(){}).then(function(){
+     m.style.color='#8fe388';
+     m.textContent=(ru?'Аккаунт удалён.':'Account deleted.')+(bad?(ru?' Часть файлов удалить не удалось — напишите нам на почту из подвала, мы удалим их вручную.':' Some files could not be removed — email us (address in the footer) and we will delete them manually.'):'');
+     n.disabled=false;n.textContent='OK';y.style.display='none';
+     n.onclick=function(){location.href=location.href.split('#')[0]};
+    });
+   });
+  }).catch(function(e){
+   busy=false;w.disabled=false;n.disabled=false;y.disabled=false;y.style.opacity='1';
+   m.style.color='#ff8a8a';
+   m.textContent=(ru?'Не удалось удалить аккаунт: ':'Could not delete the account: ')+((e&&e.message)||'');
+  });
+ };
+ w.focus();
+};
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
 <script>
 var SB_URL='https://rvculqjzivcdpumhnqwh.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2Y3VscWp6aXZjZHB1bWhucXdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2NjM1ODEsImV4cCI6MjEwODIzOTU4MX0.QgDzTGCOKDm7p33GLMVj3JPn76J-gyOD7eXxsP1Lx2U';
@@ -928,8 +1023,8 @@ var EM=['😎','🪖','🎤','🎧','🥁','🎸','🔥','⚡','👑','🐱','�
 CL=['#ffe14d','#ff9900','#ff4d6d','#ff7ad9','#c77dff','#4dd2ff','#5dff8a','#f0d8e4'],
 TH={sunset:['#ff9900','#c8102e'],candy:['#ff7ad9','#7a2a4e'],toxic:['#5dff8a','#0a3d1f'],ocean:['#4dd2ff','#12306b'],royal:['#c77dff','#3a1a6b'],army:['#8a9a3a','#1f260a'],night:['#6a6a9a','#0a0a1a'],mono:['#999999','#222222']},
 PF={},pd=null,pbusy=false,
-PT={ru:{btn:'👤 Профиль',title:'Мой профиль',name:'Имя',status:'Статус',statusp:'Например: 🎵 пишу музыку',bio:'О себе',biop:'Пара слов о себе (до 160 символов)',av:'Аватар',up:'📷 Своя картинка',col:'Цвет ника',th:'Оформление карточки',save:'Сохранить',cancel:'Закрыть',reset:'Сбросить',edit:'✏ Редактировать',err:'Не удалось сохранить профиль. Попробуйте позже.',big:'Нужна картинка PNG, JPG, GIF или WEBP до 2 МБ.',upl:'Загружаем картинку…',empty:'Пока без описания.',resetq:'Удалить профиль и вернуть всё по умолчанию?'},
-en:{btn:'👤 Profile',title:'My profile',name:'Name',status:'Status',statusp:'E.g.: 🎵 making music',bio:'About me',biop:'A few words about you (up to 160 characters)',av:'Avatar',up:'📷 Own picture',col:'Name color',th:'Card theme',save:'Save',cancel:'Close',reset:'Reset',edit:'✏ Edit',err:'Could not save the profile. Try again later.',big:'Use a PNG, JPG, GIF or WEBP image up to 2 MB.',upl:'Uploading the picture…',empty:'No description yet.',resetq:'Delete the profile and restore defaults?'}};
+PT={ru:{btn:'👤 Профиль',title:'Мой профиль',name:'Имя',status:'Статус',statusp:'Например: 🎵 пишу музыку',bio:'О себе',biop:'Пара слов о себе (до 160 символов)',av:'Аватар',up:'📷 Своя картинка',col:'Цвет ника',th:'Оформление карточки',save:'Сохранить',cancel:'Закрыть',reset:'Сбросить',acdel:'🗑 Удалить аккаунт',edit:'✏ Редактировать',err:'Не удалось сохранить профиль. Попробуйте позже.',big:'Нужна картинка PNG, JPG, GIF или WEBP до 2 МБ.',upl:'Загружаем картинку…',empty:'Пока без описания.',resetq:'Удалить профиль и вернуть всё по умолчанию?'},
+en:{btn:'👤 Profile',title:'My profile',name:'Name',status:'Status',statusp:'E.g.: 🎵 making music',bio:'About me',biop:'A few words about you (up to 160 characters)',av:'Avatar',up:'📷 Own picture',col:'Name color',th:'Card theme',save:'Save',cancel:'Close',reset:'Reset',acdel:'🗑 Delete account',edit:'✏ Edit',err:'Could not save the profile. Try again later.',big:'Use a PNG, JPG, GIF or WEBP image up to 2 MB.',upl:'Uploading the picture…',empty:'No description yet.',resetq:'Delete the profile and restore defaults?'}};
 function thBg(k){var t=TH[k]||TH.sunset;return 'linear-gradient(135deg,'+t[0]+','+t[1]+')'}
 function okU(v){return typeof v==='string'&&v.indexOf(SB_URL+'/storage/v1/object/public/'+BK+'/')===0}
 function okC(c){return /^#[0-9a-f]{6}$/i.test(c||'')}
@@ -1139,7 +1234,8 @@ Notification.requestPermission().then(function(p){if(p==='granted'){NTDEV=true;t
 if(rows.some(function(n){return !n.read_at}))sb.rpc('notif_read',{p_ids:null}).then(function(){NTN=0;ntBadge()})})}).catch(function(e){console.warn('notif:',e)})}
 
 var KTLAST='',KTPF={};
-function ktLogin(back){if(!sb)return;try{var h=back||decodeURIComponent((location.hash||'').replace(/^#/,''));if(h&&/^[A-Za-z0-9_-]{1,40}$/.test(h))localStorage.setItem('ktback',JSON.stringify({h:h,t:Date.now()}));else localStorage.removeItem('ktback')}catch(e){}
+function ktLogin(back){if(!sb)return;needConsent(function(){ktLogin2(back)})}
+function ktLogin2(back){try{var h=back||decodeURIComponent((location.hash||'').replace(/^#/,''));if(h&&/^[A-Za-z0-9_-]{1,40}$/.test(h))localStorage.setItem('ktback',JSON.stringify({h:h,t:Date.now()}));else localStorage.removeItem('ktback')}catch(e){}
 sb.auth.signInWithOAuth({provider:'github',options:{redirectTo:location.href.split('#')[0]}})}
 function ktBackGo(){try{var raw=localStorage.getItem('ktback');if(!raw||!SES||!isGh())return;localStorage.removeItem('ktback');var o=JSON.parse(raw);
 if(!o||!o.h||Date.now()-o.t>600000||!/^[A-Za-z0-9_-]{1,40}$/.test(o.h))return;
@@ -1426,7 +1522,7 @@ Array.prototype.forEach.call(document.querySelectorAll('#pfb [data-k],#pfb [data
 document.getElementById('pfup').classList.toggle('on',pd.kind==='image');var cc=document.getElementById('pfcc');if(cc&&okC(pd.color))cc.value=pd.color}
 function pfEdit(){if(!sb||!SES||!isGh())return;var md=SES.user.user_metadata||{},p=PF[SES.user.id]||{},S=PT[L];
 pd={name:p.display_name||md.user_name||'',status:p.status||'',bio:p.bio||'',kind:p.avatar_kind||'github',val:p.avatar_value||'',color:okC(p.name_color)?p.name_color:CL[0],theme:TH[p.theme]?p.theme:'sunset',file:null,blob:''};
-pfShow(`<div class='pfh'>${S.title}</div><div id='pfpv'></div><div class='pfe'><label>${S.name}</label><input type='text' id='pfn' maxlength='30'><label>${S.status}</label><input type='text' id='pfs' maxlength='40' placeholder='${S.statusp}'><label>${S.bio}</label><textarea id='pfbio' maxlength='160' placeholder='${S.biop}'></textarea><label>${S.av}</label><div><span class='pfo' data-k='github'>GitHub</span>${EM.map(function(e){return `<span class='pfo em' data-e='${e}'>${e}</span>`}).join('')}<span class='pfo' id='pfup'>${S.up}</span><input type='file' id='pfif' accept='image/png,image/jpeg,image/gif,image/webp' hidden></div><label>${S.col}</label><div>${CL.map(function(c){return `<span class='sw' data-c='${c}' style='background:${c}'></span>`}).join('')}<input type='color' id='pfcc'></div><label>${S.th}</label><div>${Object.keys(TH).map(function(k){return `<span class='sw' data-th='${k}' style='background:${thBg(k)}'></span>`}).join('')}</div><p class='cmsg' id='pfm'></p><button class='cmb' id='pfsv'>${S.save}</button> <button class='cmb' id='pfx'>${S.cancel}</button> <button class='cmb' id='pfrs'>${S.reset}</button></div>`);
+pfShow(`<div class='pfh'>${S.title}</div><div id='pfpv'></div><div class='pfe'><label>${S.name}</label><input type='text' id='pfn' maxlength='30'><label>${S.status}</label><input type='text' id='pfs' maxlength='40' placeholder='${S.statusp}'><label>${S.bio}</label><textarea id='pfbio' maxlength='160' placeholder='${S.biop}'></textarea><label>${S.av}</label><div><span class='pfo' data-k='github'>GitHub</span>${EM.map(function(e){return `<span class='pfo em' data-e='${e}'>${e}</span>`}).join('')}<span class='pfo' id='pfup'>${S.up}</span><input type='file' id='pfif' accept='image/png,image/jpeg,image/gif,image/webp' hidden></div><label>${S.col}</label><div>${CL.map(function(c){return `<span class='sw' data-c='${c}' style='background:${c}'></span>`}).join('')}<input type='color' id='pfcc'></div><label>${S.th}</label><div>${Object.keys(TH).map(function(k){return `<span class='sw' data-th='${k}' style='background:${thBg(k)}'></span>`}).join('')}</div><p class='cmsg' id='pfm'></p><button class='cmb' id='pfsv'>${S.save}</button> <button class='cmb' id='pfx'>${S.cancel}</button> <button class='cmb' id='pfrs'>${S.reset}</button> <button class='cmb' id='pfdel' style='color:#ff6b6b'>${S.acdel}</button></div>`);
 document.getElementById('pfn').value=pd.name;document.getElementById('pfs').value=pd.status;document.getElementById('pfbio').value=pd.bio;
 var b=document.getElementById('pfb');
 b.onclick=function(ev){var t=ev.target.closest('[data-k],[data-e],[data-c],[data-th],#pfup');if(!t||!pd)return;
@@ -1437,7 +1533,7 @@ b.oninput=function(ev){if(!pd)return;var i=ev.target.id,v=ev.target.value;if(i==
 b.onchange=function(ev){if(!pd||ev.target.id!=='pfif')return;var f=ev.target.files[0];if(!f)return;
 if(!/^image\/(png|jpe?g|gif|webp)$/.test(f.type)||f.size>2097152){document.getElementById('pfm').textContent=PT[L].big;return}
 document.getElementById('pfm').textContent='';if(pd.blob)URL.revokeObjectURL(pd.blob);pd.file=f;pd.blob=URL.createObjectURL(f);pd.kind='image';pfPrev()};
-document.getElementById('pfsv').onclick=pfSave;document.getElementById('pfrs').onclick=pfReset;pfPrev()}
+document.getElementById('pfsv').onclick=pfSave;document.getElementById('pfrs').onclick=pfReset;document.getElementById('pfdel').onclick=function(){pfDelAcc()};pfPrev()}
 function pfSave(){if(pbusy||!pd||!SES||!isGh())return;pbusy=true;var S=PT[L],m=document.getElementById('pfm'),uid=SES.user.id;m.textContent=pd.file?S.upl:'';
 var up=pd.file?(function(){var ext=(pd.file.name.split('.').pop()||'png').replace(/[^a-z0-9]/gi,'').slice(0,5)||'png',path=uid+'/avatar-'+Date.now()+'.'+ext;return sb.storage.from(BK).upload(path,pd.file,{contentType:pd.file.type}).then(function(r){if(r.error)throw r.error;return sb.storage.from(BK).getPublicUrl(path).data.publicUrl})})():Promise.resolve(pd.val);
 up.then(function(u){var kind=pd.kind,val=kind==='emoji'?pd.val:kind==='image'?u:'';if(kind==='image'&&!okU(val)){kind='github';val=''}if(kind==='emoji'&&EM.indexOf(val)<0){kind='github';val=''}
@@ -1602,7 +1698,7 @@ function canDeleteForumRow(row){
   if(row && row.user_id && row.user_id === SES.user.id) return true;
   return false;
 }
-function ens(){return SES?Promise.resolve():sb.auth.signInAnonymously().then(function(r){if(r.error)throw r.error;SES=r.data.session})}
+function ens(){return SES?Promise.resolve():consentP().then(function(){return sb.auth.signInAnonymously()}).then(function(r){if(r.error)throw r.error;SES=r.data.session})}
 function ci(c,r){var d=new Date(c.created_at),lc=L=='ru'?'ru-RU':'en-GB',m=M[L],own=SES&&c.user_id&&c.user_id===SES.user.id,n=LK[c.id]||0,me=!!MY[c.id],id=esc(c.id);
 return `<div class='cmi'>${pfAv(c)}<div>${pfNm(c)}${admBadge(c.user_id)} ${c.is_github?`<span class='gh'>GitHub</span> `:''}<i>${d.toLocaleDateString(lc)} ${d.toLocaleTimeString(lc,{hour:'2-digit',minute:'2-digit'})}</i><br>${gbody(c.body)}<div class='cat'>${fl(c.files)}</div><div class='cac'><a class='cml${me?' on':''}' data-id='${id}'>${hrt(me)} ${n}</a>${r?'':`<a class='cmp' data-id='${id}'>${m.rep}</a>`}${SES&&isGh()&&c.is_github&&c.user_id&&c.user_id!==SES.user.id?`<a class='cmw' data-u='${esc(c.user_id)}'>${DT[L].write}</a>`:''}${own||ADM?`<a class='cmd' data-id='${id}'>${m.del}</a>`:''}</div>${!r&&rto!==null&&String(rto)===String(c.id)?`<div class='cmf'>${SES&&isGh()?'':`<input id='rn' maxlength='30' placeholder='${m.name}'>`}<textarea id='rt' maxlength='500' placeholder='${m.txt}'></textarea>${rg?gchip(rg,'rgx'):''}<div>${KLIPY_KEY?`<button class='cmb' id='rgf'>GIF</button> `:''}<button class='cmb' id='rs'>${m.send}</button> <button class='cmb' id='rc'>${m.can}</button></div><p class='cmsg'>${msg}</p></div>`:''}${r?'':(RP[c.id]||[]).map(function(x){return ci(x,true)}).join('')}</div></div>`}
 function cmLike(id){var had=!!MY[id];if(had){delete MY[id];LK[id]=Math.max(0,(LK[id]||1)-1)}else{MY[id]=1;LK[id]=(LK[id]||0)+1}
@@ -1632,7 +1728,7 @@ function cmLoad(){var tk=++LT,C='id,created_at,name,body,is_github,avatar_url,us
 return sb.from('comments').select(C).is('parent_id',null).order('created_at',{ascending:false}).limit(50).then(function(r){if(r.error){console.warn('comments:',r.error.message);return sb.from('comments').select('id,created_at,name,body,is_github,avatar_url,files').order('created_at',{ascending:false}).limit(50)}return r}).then(function(r){if(tk!==LT)return;if(r.error)console.warn('comments:',r.error.message);var l=r.data||[];if(!l.length){list=l;RP={};LK={};MY={};cmL();return}
 return Promise.all([sb.from('comments').select(C).in('parent_id',l.map(function(c){return c.id})).order('created_at',{ascending:true}),sb.from('comment_likes').select('comment_id,user_id')]).then(function(a){if(tk!==LT)return;var rp={},lk={},my={};(a[0].data||[]).forEach(function(x){(rp[x.parent_id]=rp[x.parent_id]||[]).push(x)});(a[1].data||[]).forEach(function(x){lk[x.comment_id]=(lk[x.comment_id]||0)+1;if(SES&&x.user_id===SES.user.id)my[x.comment_id]=1});list=l;RP=rp;LK=lk;MY=my;cmL();pfLoad()})})}
 function cmSend(){var ne=document.getElementById('cmn'),t=document.getElementById('cmt').value.trim(),nm=ne?ne.value.trim():'';if(busy||(!t&&!pf.length&&!pg))return;busy=true;msg=pf.length?M[L].upl:'';cmL();
-(SES?Promise.resolve():sb.auth.signInAnonymously().then(function(r){if(r.error)throw r.error;SES=r.data.session}))
+(SES?Promise.resolve():consentP().then(function(){return sb.auth.signInAnonymously()}).then(function(r){if(r.error)throw r.error;SES=r.data.session}))
 .then(function(){return pf.length?upl():[]})
 .then(function(fs){var row={name:nm||(isGh()?'GitHub':M[L].anon),body:pg?((t?t+'\n':'')+'[gif:'+pg+']'):(t||'📎')};if(fs.length)row.files=fs;return sb.from('comments').insert(row)})
 .then(function(r){if(r.error)throw r.error;var a=document.getElementById('cmt'),c=document.getElementById('cmn');if(a)a.value='';if(c)c.value='';dr={n:'',t:''};pf=[];pg='';msg='';busy=false;return cmLoad()})
